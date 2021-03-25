@@ -26,8 +26,14 @@
  * ```
  */
 
+const ipc = require('electron').ipcRenderer;
+
 import './index.css';
 import './app';
 import './preload';
 
 console.log('👋 This message is being logged by "renderer.js", included via webpack');
+
+ipc.on('dir', (event, arg) => {
+  console.log(String(arg));
+})

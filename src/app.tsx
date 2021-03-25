@@ -1,12 +1,12 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
-import FirstC from './firstcomp';
+import FirstC from './components/firstcomp';
+import Category from './components/category';
 
 function render() {
   ReactDOM.render(
   <div>
-    <h2>Hello from React!</h2>
-    <FirstC></FirstC>
+    <Category></Category>
   </div>
   , document.getElementById('root'));
 }

@@ -1,4 +1,4 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
 declare const MAIN_WINDOW_WEBPACK_ENTRY: any;
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -50,6 +50,16 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
-ipcMain.on('asynchronous-message', (event, arg) => {
-  console.log("heyyyy",arg) // prints "heyyyy ping"
+ipcMain.on('open-dialog', (event) => {
+  console.log("Open Dialog in IPCMain received") // prints "heyyyy ping"
+  dialog.showOpenDialog( {
+    properties: ['openDirectory', 'openFile']
+  }).then(result => {
+    console.log(result.canceled)
+    console.log(result.filePaths)
+    // event.sender.send('folderPath', result.filePaths);
+    event.returnValue = result.filePaths;
+  }).catch(err => {
+    console.log(err)
+  })
 })
