@@ -20,12 +20,12 @@ class App extends React.Component{
 
   addNewCategory(){
     var fp = String(ipcRenderer.sendSync('open-dialog'));
-    if (!this.state.categories.includes(fp)) {
+    if (!this.state.categories.includes(fp) && fp != []) {
       this.setState({
         categories: [...this.state.categories, fp]
       });
     } else {
-      console.log("Duplicate folder");
+      console.log("Invalid folder");
     }
     
   }
