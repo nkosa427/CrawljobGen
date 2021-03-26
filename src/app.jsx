@@ -20,9 +20,14 @@ class App extends React.Component{
 
   addNewCategory(){
     var fp = String(ipcRenderer.sendSync('open-dialog'));
-    this.setState({
-      categories: [...this.state.categories, fp]
-    });
+    if (!this.state.categories.includes(fp)) {
+      this.setState({
+        categories: [...this.state.categories, fp]
+      });
+    } else {
+      console.log("Duplicate folder");
+    }
+    
   }
   
   categorySelected(fp) {
@@ -32,9 +37,9 @@ class App extends React.Component{
   render() {
     return(
       <div>
-        {this.state.categories.map( (category, index) => {
+        {this.state.categories.map( (category) => {
           return <Category 
-            key={index} 
+            key={category} 
             onCategorySelected={this.onCategorySelected} 
             path={category}/>
         })}
