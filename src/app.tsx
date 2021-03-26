@@ -6,15 +6,20 @@ import Category from './components/category';
 class App extends React.Component <{}> {
   constructor(props: {}){
     super(props);
+    this.categorySelected = this.categorySelected.bind(this);
     this.state = {
       categories: []
     }
   }
 
+  categorySelected(fp: string){
+    console.log("From categoryselected: " + fp);
+  }
+
   render() {
     return(
       <div>
-        <Category></Category>
+        <Category onCategorySelected={this.categorySelected}></Category>
       </div>
    );
   }
