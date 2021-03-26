@@ -16,7 +16,7 @@ export default class Category extends React.Component {
       <div>
         <fieldset>
           <legend>
-          <h3>{this.state.categoryPath}</h3>
+          <h3>{this.props.path}</h3>
           </legend>
         </fieldset>
         {/* <button onClick={this.props.callOpenDialog}>Select Category Folder</button> */}

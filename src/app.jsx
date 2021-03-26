@@ -10,7 +10,11 @@ class App extends React.Component{
     this.categorySelected = this.categorySelected.bind(this);
     this.addNewCategory = this.addNewCategory.bind(this);
     this.state = {
-      categories: []
+      categories: [{
+        folderpath: 'hi',
+        links: [],
+        subcategories: [] 
+      }]
     }  
   }
 
@@ -20,9 +24,18 @@ class App extends React.Component{
 
   addNewCategory(){
     var fp = String(ipcRenderer.sendSync('open-dialog'));
-    if (!this.state.categories.includes(fp) && fp != []) {
+    const inArr = this.state.categories.some( (category) => {
+      return category.folderpath === fp
+    });
+
+    if (fp != [] && !inArr) {
       this.setState({
-        categories: [...this.state.categories, fp]
+        categories: [...this.state.categories, 
+        {
+          folderpath: fp,
+          links: [],
+          subcategories: []
+        }]
       });
     } else {
       console.log("Invalid folder");
@@ -37,11 +50,12 @@ class App extends React.Component{
   render() {
     return(
       <div>
-        {this.state.categories.map( (category) => {
+        {this.state.categories.map((category) => {
+          console.log("category path: " + category.folderpath);
           return <Category 
-            key={category} 
-            onCategorySelected={this.onCategorySelected} 
-            path={category}/>
+            key={category.folderpath}
+            path={category.folderpath} 
+          />
         })}
         <button onClick={this.addNewCategory}>Add Category</button>
       </div>
