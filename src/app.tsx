@@ -3,12 +3,22 @@ import * as ReactDOM from 'react-dom';
 import FirstC from './components/firstcomp';
 import Category from './components/category';
 
+class App extends React.Component <{}> {
+  constructor(props: {}){
+    super(props);
+  }
+
+  render() {
+    return(
+      <div>
+        <Category></Category>
+      </div>
+   );
+  }
+}
+
 function render() {
-  ReactDOM.render(
-  <div>
-    <Category></Category>
-  </div>
-  , document.getElementById('root'));
+  ReactDOM.render(<App/>, document.getElementById('root'));
 }
 
 render();

@@ -20,10 +20,6 @@ export default class Category extends React.Component <{},IMyComponentState> {
     this.setState({
       categoryPath: fp
     });
-    // ipcRenderer.send('open-dialog');
-    // ipcRenderer.on('folderPath', (event, arg) => {
-    //   console.log(String(arg));
-    // });
   }
 
   render() {
@@ -31,10 +27,10 @@ export default class Category extends React.Component <{},IMyComponentState> {
       <div>
         <fieldset>
           <legend>
-            <button onClick={this.callOpenDialog}>Select Category Folder</button>
+          <h3>{this.state.categoryPath}</h3>
           </legend>
         </fieldset>
-        <h2>{this.state.categoryPath}</h2>
+        <button onClick={this.callOpenDialog}>Select Category Folder</button>
       </div>
     );
   }
