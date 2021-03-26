@@ -3,7 +3,11 @@ import * as ReactDOM from 'react-dom';
 import FirstC from './components/firstcomp';
 import Category from './components/category';
 
-class App extends React.Component <{}> {
+interface States{
+  categories: Array<string>
+}
+
+class App extends React.Component <{}, States> {
   constructor(props: {}){
     super(props);
     this.categorySelected = this.categorySelected.bind(this);
@@ -14,12 +18,20 @@ class App extends React.Component <{}> {
 
   categorySelected(fp: string){
     console.log("From categoryselected: " + fp);
+    var tmpCategories = this.state.categories;
+    tmpCategories.push(fp);
+    this.setState({
+      categories: tmpCategories
+    })
   }
 
   render() {
     return(
       <div>
-        <Category onCategorySelected={this.categorySelected}></Category>
+        <Category 
+          onCategorySelected={this.categorySelected}
+          path='No Path Selected'
+        />
       </div>
    );
   }

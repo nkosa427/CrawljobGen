@@ -7,6 +7,7 @@ interface IMyComponentState {
 
 interface Props {
   onCategorySelected: (fp: string) => void;
+  path: string
 }
 
 export default class Category extends React.Component <Props,IMyComponentState> {
@@ -15,7 +16,7 @@ export default class Category extends React.Component <Props,IMyComponentState> 
     super(props);
     this.callOpenDialog = this.callOpenDialog.bind(this);
     this.state = {
-      categoryPath: 'No path'
+      categoryPath: this.props.path
     }
   }
 
