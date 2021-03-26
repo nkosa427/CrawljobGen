@@ -6,6 +6,9 @@ import Category from './components/category';
 class App extends React.Component <{}> {
   constructor(props: {}){
     super(props);
+    this.state = {
+      categories: []
+    }
   }
 
   render() {
