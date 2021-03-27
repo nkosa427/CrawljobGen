@@ -9,6 +9,8 @@ class App extends React.Component{
     super(props);
     this.addNewCategory = this.addNewCategory.bind(this);
     this.linkAdded = this.linkAdded.bind(this);
+    this.printState = this.printState.bind(this);
+    this.onSubCategoryAdded = this.onSubCategoryAdded.bind(this);
     this.state = {
       categories: [{
         folderpath: '',
@@ -16,6 +18,10 @@ class App extends React.Component{
         subcategories: [] 
       }]
     }  
+  }
+
+  printState(){
+    console.log(this.state);
   }
 
   linkAdded(link, index, level){
@@ -64,9 +70,14 @@ class App extends React.Component{
     }
   }
 
+  onSubCategoryAdded(indicies){
+    console.log("From parent: " + indicies.category + ", " + indicies.indexes.reverse())
+  }
+
   render() {
     return(
       <div>
+        <button onClick={this.printState}>Print State</button>
         {this.state.categories.map((category, index) => {
           if (category.folderpath != '') {
             return <Category 
@@ -74,6 +85,7 @@ class App extends React.Component{
               index={index}
               path={category.folderpath} 
               passLink={this.linkAdded}
+              onAddSub={this.onSubCategoryAdded}
               level={0}
             />
           }

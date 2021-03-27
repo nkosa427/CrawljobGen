@@ -1,5 +1,5 @@
 import * as React from "react";
-import LinkEntry from './linkEntry.jsx'
+import LinkEntry from './linkEntry.jsx';
 
 const { ipcRenderer } = require('electron');
 
@@ -11,6 +11,7 @@ export default class Category extends React.Component {
     this._handleKeyDown = this._handleKeyDown.bind(this);
     this.addBlankInput = this.addBlankInput.bind(this);
     this.addSubCategory = this.addSubCategory.bind(this);
+    this.onSubCategoryAdded = this.onSubCategoryAdded.bind(this);
 
     this.state = {
       folderpath: this.props.path,
@@ -38,15 +39,29 @@ export default class Category extends React.Component {
 
   addSubCategory(){
     var fp = String(ipcRenderer.sendSync('open-dialog', this.props.path));
-    this.setState({
-      subcategories: [
-        ...this.state.subcategories,
-        {
-          folderpath: fp,
-          links: [],
-          subcategories: []
-        }]
-    });
+    if (fp != this.state.folderpath && fp != []){
+      this.setState({
+        subcategories: [
+          ...this.state.subcategories,
+          {
+            folderpath: fp,
+            links: [],
+            subcategories: []
+          }]
+      }, () => {this.props.onAddSub({
+        category: fp,
+        indexes: [this.state.subcategories.length - 1, this.props.index]
+      })});
+      
+    } else {
+      console.log("Same folder!");
+    }
+  }
+
+  onSubCategoryAdded(indicies){
+    console.log("from " + this.state.folderpath + ": " + this.props.index);
+    indicies.indexes.push(this.props.index);
+    this.props.onAddSub(indicies);
   }
 
   render() {
@@ -56,6 +71,8 @@ export default class Category extends React.Component {
           <legend>
           <h3>{this.state.folderpath}</h3>
           </legend>
+          <button onClick={this.onSubCategoryAdded}>debug</button>
+          <button onClick={this.addSubCategory}>New Sub-Category</button>
           {this.state.links.map( (link, index) => {
             return <LinkEntry
               key={link}
@@ -72,10 +89,10 @@ export default class Category extends React.Component {
               path={subcategory.folderpath}
               passLink={this.props.passLink}
               level={this.props.level + 1}
+              onAddSub={this.onSubCategoryAdded}
             />
             }
           )}
-          <button onClick={this.addSubCategory}>New Sub-Category</button>
         </fieldset>
       </div>
     );
