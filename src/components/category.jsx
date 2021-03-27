@@ -30,7 +30,7 @@ export default class Category extends React.Component {
       this.setState({
         links: [...this.state.links, str]
       });
-      this.props.passLink(str, this.props.index);
+      this.props.passLink(str, this.props.index, this.props.level);
     } else {
       console.log('Duplicate link');
     }
@@ -38,6 +38,15 @@ export default class Category extends React.Component {
 
   addSubCategory(){
     var fp = String(ipcRenderer.sendSync('open-dialog', this.props.path));
+    this.setState({
+      subcategories: [
+        ...this.state.subcategories,
+        {
+          folderpath: fp,
+          links: [],
+          subcategories: []
+        }]
+    });
   }
 
   render() {
@@ -56,6 +65,16 @@ export default class Category extends React.Component {
             />
           })}
           <LinkEntry onKey={this._handleKeyDown} isDisabled={false} />
+          {this.state.subcategories.map((subcategory, index) => {
+            return <Category 
+              key={subcategory.folderpath}
+              index={index}
+              path={subcategory.folderpath}
+              passLink={this.props.passLink}
+              level={this.props.level + 1}
+            />
+            }
+          )}
           <button onClick={this.addSubCategory}>New Sub-Category</button>
         </fieldset>
       </div>

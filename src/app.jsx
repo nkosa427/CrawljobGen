@@ -18,7 +18,8 @@ class App extends React.Component{
     }  
   }
 
-  linkAdded(link, index){
+  linkAdded(link, index, level){
+    console.log("Link added: " + link + " at index " + index + " at level " + level);
     let copyCategories = this.state.categories;
     let categoryToChange = copyCategories[index];
     categoryToChange.links.push(link);
@@ -30,20 +31,34 @@ class App extends React.Component{
 
   addNewCategory(){
     var fp = String(ipcRenderer.sendSync('open-dialog'));
+    //Checks if the selected folder is already part of another category
     const inArr = this.state.categories.some( (category) => {
       return category.folderpath === fp
     });
 
     if (fp != [] && !inArr) {
-      this.setState({
-        categories: [...this.state.categories, 
-          {
-            folderpath: fp,
-            links: [],
-            subcategories: []
-          }
-        ]
-      });
+      //For the initial category since filepath was initialized in constructor as ''
+      if (this.state.categories.length == 1 && this.state.categories[0].folderpath == ''){
+        this.setState({
+          categories: [
+            {
+              folderpath: fp,
+              links: [],
+              subcategories: []
+            }
+          ]
+        });
+      } else {
+        this.setState({
+          categories: [...this.state.categories, 
+            {
+              folderpath: fp,
+              links: [],
+              subcategories: []
+            }
+          ]
+        });
+      }
     } else {
       console.log("Invalid folder");
     }
@@ -59,6 +74,7 @@ class App extends React.Component{
               index={index}
               path={category.folderpath} 
               passLink={this.linkAdded}
+              level={0}
             />
           }
         })}
