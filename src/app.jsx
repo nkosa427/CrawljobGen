@@ -9,17 +9,18 @@ class App extends React.Component{
     super(props);
     this.categorySelected = this.categorySelected.bind(this);
     this.addNewCategory = this.addNewCategory.bind(this);
+    this.linkAdded = this.linkAdded.bind(this);
     this.state = {
       categories: [{
-        folderpath: 'hi',
+        folderpath: '',
         links: [],
         subcategories: [] 
       }]
     }  
   }
 
-  callOpenDialog(){
-    
+  linkAdded(link, index){
+    console.log("link: " + link + " for object " + index);
   }
 
   addNewCategory(){
@@ -50,12 +51,15 @@ class App extends React.Component{
   render() {
     return(
       <div>
-        {this.state.categories.map((category) => {
-          console.log("category path: " + category.folderpath);
-          return <Category 
-            key={category.folderpath}
-            path={category.folderpath} 
-          />
+        {this.state.categories.map((category, index) => {
+          if (category.folderpath != '') {
+            return <Category 
+              key={category.folderpath}
+              index={index}
+              path={category.folderpath} 
+              passLink={this.linkAdded}
+            />
+          }
         })}
         <button onClick={this.addNewCategory}>Add Category</button>
       </div>
