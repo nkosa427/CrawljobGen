@@ -50,12 +50,13 @@ app.on('activate', () => {
 // code. You can also put them in separate files and import them here.
 
 
-ipcMain.on('open-dialog', (event) => {
+ipcMain.on('open-dialog', (event, defPath) => {
   console.log("Open Dialog in IPCMain received") // prints "heyyyy ping"
   dialog.showOpenDialog( {
-    properties: ['openDirectory', 'openFile']
+    properties: ['openDirectory', 'openFile'],
+    defaultPath: defPath
   }).then(result => {
-    console.log(result.canceled)
+    console.log("defpath: " + defPath)
     console.log(result.filePaths)
     // event.sender.send('folderPath', result.filePaths);
     event.returnValue = result.filePaths;

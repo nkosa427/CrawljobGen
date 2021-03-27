@@ -7,17 +7,16 @@ export default class Category extends React.Component {
 
   constructor(props){
     super(props);
-    this.linkAdded = this.linkAdded.bind(this);
+
     this._handleKeyDown = this._handleKeyDown.bind(this);
     this.addBlankInput = this.addBlankInput.bind(this);
-    this.state = {
-      categoryPath: this.props.path,
-      links: []
-    }
-  }
+    this.addSubCategory = this.addSubCategory.bind(this);
 
-  linkAdded(event){
-    this.props.passLink(event.target.value, this.props.index);
+    this.state = {
+      folderpath: this.props.path,
+      links: [],
+      subcategories: []
+    }  
   }
 
   addBlankInput(){
@@ -28,13 +27,17 @@ export default class Category extends React.Component {
 
   _handleKeyDown(str){
     if (!this.state.links.includes(str)) {
-      console.log('do validate ' + str);
       this.setState({
         links: [...this.state.links, str]
       });
+      this.props.passLink(str, this.props.index);
     } else {
       console.log('Duplicate link');
     }
+  }
+
+  addSubCategory(){
+    var fp = String(ipcRenderer.sendSync('open-dialog', this.props.path));
   }
 
   render() {
@@ -42,7 +45,7 @@ export default class Category extends React.Component {
       <div>
         <fieldset>
           <legend>
-          <h3>{this.state.categoryPath}</h3>
+          <h3>{this.state.folderpath}</h3>
           </legend>
           {this.state.links.map( (link, index) => {
             return <LinkEntry
@@ -53,8 +56,8 @@ export default class Category extends React.Component {
             />
           })}
           <LinkEntry onKey={this._handleKeyDown} isDisabled={false} />
+          <button onClick={this.addSubCategory}>New Sub-Category</button>
         </fieldset>
-        {/* <button onClick={this.props.callOpenDialog}>Select Category Folder</button> */}
       </div>
     );
   }

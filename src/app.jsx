@@ -7,7 +7,6 @@ const { ipcRenderer } = require('electron');
 class App extends React.Component{
   constructor(props){
     super(props);
-    this.categorySelected = this.categorySelected.bind(this);
     this.addNewCategory = this.addNewCategory.bind(this);
     this.linkAdded = this.linkAdded.bind(this);
     this.state = {
@@ -20,7 +19,13 @@ class App extends React.Component{
   }
 
   linkAdded(link, index){
-    console.log("link: " + link + " for object " + index);
+    let copyCategories = this.state.categories;
+    let categoryToChange = copyCategories[index];
+    categoryToChange.links.push(link);
+    copyCategories[index] = categoryToChange;
+    this.setState({
+      categories: copyCategories
+    });
   }
 
   addNewCategory(){
@@ -32,20 +37,16 @@ class App extends React.Component{
     if (fp != [] && !inArr) {
       this.setState({
         categories: [...this.state.categories, 
-        {
-          folderpath: fp,
-          links: [],
-          subcategories: []
-        }]
+          {
+            folderpath: fp,
+            links: [],
+            subcategories: []
+          }
+        ]
       });
     } else {
       console.log("Invalid folder");
     }
-    
-  }
-  
-  categorySelected(fp) {
-    console.log("Selected: " + fp);
   }
 
   render() {
