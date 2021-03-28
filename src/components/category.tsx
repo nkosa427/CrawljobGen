@@ -5,24 +5,18 @@ interface IMyComponentState {
   categoryPath: string
 }
 
-interface Props {
-  onCategorySelected: (fp: string) => void;
-  path: string
-}
+export default class Category extends React.Component <{},IMyComponentState> {
 
-export default class Category extends React.Component <Props,IMyComponentState> {
-
-  constructor(props: Props){
+  constructor(props: {}){
     super(props);
     this.callOpenDialog = this.callOpenDialog.bind(this);
     this.state = {
-      categoryPath: this.props.path
+      categoryPath: 'No path'
     }
   }
 
   callOpenDialog(){
     var fp = String(ipcRenderer.sendSync('open-dialog'));
-    this.props.onCategorySelected(fp);
     this.setState({
       categoryPath: fp
     });
