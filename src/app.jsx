@@ -11,6 +11,8 @@ class App extends React.Component{
     this.linkAdded = this.linkAdded.bind(this);
     this.printState = this.printState.bind(this);
     this.onSubCategoryAdded = this.onSubCategoryAdded.bind(this);
+    this.printStruct = this.printStruct.bind(this);
+    this.addSubCategory = this.addSubCategory.bind(this);
     this.state = {
       categories: [{
         folderpath: '',
@@ -21,7 +23,8 @@ class App extends React.Component{
   }
 
   printState(){
-    console.log(this.state);
+    // this.printStruct(this.state.categories);
+    console.log(this.state)
   }
 
   linkAdded(link, index, level){
@@ -56,7 +59,8 @@ class App extends React.Component{
         });
       } else {
         this.setState({
-          categories: [...this.state.categories, 
+          categories: [
+            ...this.state.categories, 
             {
               folderpath: fp,
               links: [],
@@ -70,8 +74,28 @@ class App extends React.Component{
     }
   }
 
+  printStruct(categories){
+    categories.forEach(category => {
+      console.log("path: " + category.folderpath + "\nlinks: ");
+      category.links.forEach(link => {
+        console.log("\t" + link);
+      });
+      category.subcategories.forEach(subcat => {
+        console.log("Subcategory: ");
+        this.printStruct(subcat);
+      })
+    });
+  }
+
+  addSubCategory(indicies){
+    var cat = this.state.categories;
+  }
+
   onSubCategoryAdded(indicies){
-    console.log("From parent: " + indicies.category + ", " + indicies.indexes.reverse())
+    console.log("From parent: " + indicies.category )//+ ", " + indicies.indexes.reverse());
+    indicies = indicies.indexes.reverse();
+    console.log(indicies);
+    this.addSubCategory(indicies);
   }
 
   render() {

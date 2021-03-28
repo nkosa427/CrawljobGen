@@ -11,7 +11,6 @@ export default class LinkEntry extends React.Component {
   }
 
   handleChange(event){
-    console.log("handling change" + event.target.value);
     this.setState({
       text: event.target.value
     })
