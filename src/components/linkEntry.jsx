@@ -48,7 +48,7 @@ export default class LinkEntry extends React.Component {
     let removebtn = <button>Remove</button>
 
     return(
-      inputForm, <button>Remove</button>
+      inputForm
     )
   }
 }
