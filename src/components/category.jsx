@@ -31,15 +31,17 @@ export default class Category extends React.Component {
       this.setState({
         links: [...this.state.links, str]
       });
-      this.props.passLink(str, this.props.index, this.props.level);
+      this.props.passLink(str, this.state.folderpath);
     } else {
       console.log('Duplicate link');
     }
   }
 
   addSubCategory(){
+    /*Sends message to electron main process to open folder select dialog.
+      uses sendSync, so a response is needed to proceed. */
     var fp = String(ipcRenderer.sendSync('open-dialog', this.props.path));
-    if (fp != this.state.folderpath && fp != []){
+    if (fp != this.state.folderpath && fp != []){ //If folder was selected and if that folder already isn't in the array
       this.setState({
         subcategories: [
           ...this.state.subcategories,
@@ -48,20 +50,17 @@ export default class Category extends React.Component {
             links: [],
             subcategories: []
           }]
-      }, () => {this.props.onAddSub({
-        category: fp,
-        indexes: [this.state.subcategories.length - 1, this.props.index]
-      })});
+      }, () => {
+        this.onSubCategoryAdded(fp)
+      });
       
     } else {
       console.log("Same folder!");
     }
   }
 
-  onSubCategoryAdded(indicies){
-    console.log("from " + this.state.folderpath + ": " + this.props.index);
-    indicies.indexes.push(this.props.index);
-    this.props.onAddSub(indicies);
+  onSubCategoryAdded(fp){
+    this.props.onAddSub(fp);
   }
 
   render() {

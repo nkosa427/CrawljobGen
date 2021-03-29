@@ -7,17 +7,23 @@ const { ipcRenderer } = require('electron');
 class App extends React.Component{
   constructor(props){
     super(props);
+    
     this.addNewCategory = this.addNewCategory.bind(this);
     this.linkAdded = this.linkAdded.bind(this);
-    this.printState = this.printState.bind(this);
+    this.printFolders = this.printFolders.bind(this);
     this.onSubCategoryAdded = this.onSubCategoryAdded.bind(this);
-    this.printStruct = this.printStruct.bind(this);
-    this.addSubCategory = this.addSubCategory.bind(this);
+    this.printState = this.printState.bind(this);
+    this.getFolderIndex = this.getFolderIndex.bind(this);
+
     this.state = {
       categories: [{
         folderpath: '',
         links: [],
         subcategories: [] 
+      }],
+      folders: [{
+        path: '',
+        links: []
       }]
     }  
   }
@@ -27,14 +33,22 @@ class App extends React.Component{
     console.log(this.state)
   }
 
-  linkAdded(link, index, level){
-    console.log("Link added: " + link + " at index " + index + " at level " + level);
-    let copyCategories = this.state.categories;
-    let categoryToChange = copyCategories[index];
-    categoryToChange.links.push(link);
-    copyCategories[index] = categoryToChange;
+  getFolderIndex(fp){
+    for (let i = 0; i < this.state.folders.length; i++) {
+      if (this.state.folders[i].path == fp){
+        return i;
+      }
+    }
+    return -1;
+  }
+
+  linkAdded(link, fp){
+    console.log("Adding " + link + " to " + fp + " at index " + this.getFolderIndex(fp));
+    let index = this.getFolderIndex(fp);
+    let foldersCopy = this.state.folders;
+    foldersCopy[index].links.push(link);
     this.setState({
-      categories: copyCategories
+      folders: foldersCopy
     });
   }
 
@@ -55,7 +69,11 @@ class App extends React.Component{
               links: [],
               subcategories: []
             }
-          ]
+          ],
+          folders: [{
+            path: fp,
+            links: []
+          }]
         });
       } else {
         this.setState({
@@ -66,6 +84,13 @@ class App extends React.Component{
               links: [],
               subcategories: []
             }
+          ],
+          folders: [
+          ...this.state.folders,
+            {
+              path: fp,
+              links: []
+            }
           ]
         });
       }
@@ -74,34 +99,41 @@ class App extends React.Component{
     }
   }
 
-  printStruct(categories){
-    categories.forEach(category => {
-      console.log("path: " + category.folderpath + "\nlinks: ");
-      category.links.forEach(link => {
-        console.log("\t" + link);
+  printFolders(){
+    this.state.folders.forEach(folder => {
+      console.log("Folder: " + folder.path);
+      if (folder.links && folder.links.length > 0){
+        folder.links.forEach(link => {
+          console.log("\t" + link);
+        });
+      }
+      
+    })
+  }
+
+  onSubCategoryAdded(fp){
+    console.log("onSubCategoryAdded for " + fp);
+    if (this.state.folders.length == 1 && this.state.folders[0] == ''){
+      this.setState({
+        folders: [{
+          path: fp,
+          links: []
+        }]
       });
-      category.subcategories.forEach(subcat => {
-        console.log("Subcategory: ");
-        this.printStruct(subcat);
-      })
-    });
-  }
-
-  addSubCategory(indicies){
-    var cat = this.state.categories;
-  }
-
-  onSubCategoryAdded(indicies){
-    console.log("From parent: " + indicies.category )//+ ", " + indicies.indexes.reverse());
-    indicies = indicies.indexes.reverse();
-    console.log(indicies);
-    this.addSubCategory(indicies);
+    } else {
+      this.setState({
+        folders: [...this.state.folders, {
+          path: fp,
+          links: []
+        }]
+      });
+    }
   }
 
   render() {
     return(
       <div>
-        <button onClick={this.printState}>Print State</button>
+        <button onClick={this.printFolders}>Print State</button>
         {this.state.categories.map((category, index) => {
           if (category.folderpath != '') {
             return <Category 
