@@ -15,9 +15,11 @@ export default class Category extends React.Component {
 
     this.state = {
       folderpath: this.props.path,
+      displayPath: this.props.displayPath,
       links: [],
       subcategories: []
     }
+    
   }
 
   addBlankInput(){
@@ -27,6 +29,7 @@ export default class Category extends React.Component {
   }
 
   _handleKeyDown(str){
+    console.log("displaypath: " + this.props.displayPath);
     if (!this.state.links.includes(str)) {
       this.setState({
         links: [...this.state.links, str]
@@ -47,6 +50,7 @@ export default class Category extends React.Component {
           ...this.state.subcategories,
           {
             folderpath: fp,
+            displayPath: fp,
             links: [],
             subcategories: []
           }]
@@ -69,7 +73,7 @@ export default class Category extends React.Component {
       <div className={`category color${color}`}>
         <fieldset>
           <legend>
-          <h3>{this.state.folderpath}</h3>
+          <h3>{this.props.displayPath}</h3>
           </legend>
           <button onClick={this.addSubCategory}>New Sub-Category</button>
           {this.state.links.map( (link, index) => {
@@ -86,6 +90,7 @@ export default class Category extends React.Component {
               key={subcategory.folderpath}
               index={index}
               path={subcategory.folderpath}
+              displayPath={category.displayPath}
               passLink={this.props.passLink}
               level={this.props.level + 1}
               onAddSub={this.onSubCategoryAdded}
