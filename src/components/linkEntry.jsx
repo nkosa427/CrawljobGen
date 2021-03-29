@@ -5,8 +5,10 @@ export default class LinkEntry extends React.Component {
     super(props);
     this.handleChange = this.handleChange.bind(this);
     this.handleKey = this.handleKey.bind(this);
+    this.editLink = this.editLink.bind(this);
     this.state = {
-      text: ''
+      text: '',
+      index: this.props.index
     }
   }
 
@@ -26,29 +28,36 @@ export default class LinkEntry extends React.Component {
     }
   }
 
+  editLink(){
+    this.props.editLink(this.props.link);
+  }
+
   render(){
     let inputForm;
     if (this.props.isDisabled){
-      inputForm = <input 
+      inputForm = <div><input 
         className='linkInput'
         value={this.props.link} 
         onKeyDown={this.props.onKey}
         onChange={this.handleChange}
         disabled={true}
       />
+      <button onClick={this.editLink}>Remove</button>
+      </div>
     } else {
-      inputForm = <input 
+      inputForm = <div><input 
         className='linkInput'
         value={this.state.text}
         onKeyDown={this.handleKey}
         onChange={e => {this.setState({text: e.target.value})}}
-      />
+      /></div>
     }
 
-    let removebtn = <button>Remove</button>
-
     return(
-      inputForm
+      <div>
+        {inputForm}
+      </div>
+      
     )
   }
 }
