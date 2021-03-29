@@ -19,6 +19,7 @@ class App extends React.Component{
     this.convertSlashesChecked = this.convertSlashesChecked.bind(this);
     this.trimPath = this.trimPath.bind(this);
     this.printFile = this.printFile.bind(this);
+    this.removeLink = this.removeLink.bind(this);
 
     this.state = {
       categories: [{
@@ -101,6 +102,21 @@ class App extends React.Component{
       folders: foldersCopy,
       numLinks: this.state.numLinks + 1
     });
+  }
+
+  removeLink(link){
+    console.log("Remove " + link);
+    let foldersCopy = this.state.folders;
+    
+    for (let i = 0; i < foldersCopy.length; i++){
+      for (let j = 0; j < foldersCopy[i].links.length; j++){
+        if (link == foldersCopy[i].links[j]) {
+          console.log("Found " + foldersCopy[i].links[j] + " at " + i + "," + j);
+          foldersCopy[i].links.splice(j, 1);
+          this.setState({numLinks: this.state.numLinks - 1})
+        }
+      }
+    }
   }
 
   addNewCategory(){
@@ -224,6 +240,7 @@ class App extends React.Component{
               passLink={this.linkAdded}
               onAddSub={this.onSubCategoryAdded}
               level={0}
+              removeLink={this.removeLink}
             />
           }
         })}

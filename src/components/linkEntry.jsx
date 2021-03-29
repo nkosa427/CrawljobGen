@@ -29,7 +29,7 @@ export default class LinkEntry extends React.Component {
   }
 
   editLink(){
-    this.props.editLink(this.state.index);
+    this.props.editLink(this.props.link);
   }
 
   render(){
@@ -42,7 +42,7 @@ export default class LinkEntry extends React.Component {
         onChange={this.handleChange}
         disabled={true}
       />
-      <button onClick={this.editLink}>Edit</button>
+      <button onClick={this.editLink}>Remove</button>
       </div>
     } else {
       inputForm = <div><input 
@@ -52,8 +52,6 @@ export default class LinkEntry extends React.Component {
         onChange={e => {this.setState({text: e.target.value})}}
       /></div>
     }
-
-    let EditBtn = <button onClick={this.editLink}>Edit</button>
 
     return(
       <div>

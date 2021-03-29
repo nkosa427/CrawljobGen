@@ -23,9 +23,16 @@ export default class Category extends React.Component {
     
   }
 
-  editLink(index){
-    console.log("editing index " + index + " " + this.state.links[index]);
+  editLink(link){
+    let linkCopy = this.state.links;
+    let index = linkCopy.indexOf(link)
+    // console.log("Removing link " + link + " at index " + index);
     
+    linkCopy.splice(index, 1);
+    this.props.removeLink(link);
+    this.setState({
+      links: linkCopy
+    });
   }
 
   addBlankInput(){
@@ -100,6 +107,7 @@ export default class Category extends React.Component {
               path={subcategory.folderpath}
               displayPath={subcategory.displayPath}
               passLink={this.props.passLink}
+              removeLink={this.props.removeLink}
               level={this.props.level + 1}
               onAddSub={this.onSubCategoryAdded}
             />
