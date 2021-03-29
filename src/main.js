@@ -100,6 +100,18 @@ ipcMain.on('printFile', (event, folders, convert, prefix) => {
   if (convert || prefix != ''){
     folders = convertPaths(folders, convert, prefix);
   }
+
+  var outText = "";
+
+  for (let i = 0; i < folders.length; i++){
+    for (let j = 0; j < folders[i].links.length; j++){
+      outText += folders[i].path + "\n";
+      outText += folders[i].links[j] + "\n\n";
+      console.log("printing " + folders[i].path+" - "+folders[i].links[j]);
+    }
+  }
+
+  console.log("final text: " + outText);
   
   let dt = new Date();
   let path = dt.getMonth() + "-" + dt.getDay() + "-" + dt.getFullYear() + "." + dt.getHours() + "-" + dt.getMinutes() + "-" + dt.getSeconds();
@@ -112,12 +124,16 @@ ipcMain.on('printFile', (event, folders, convert, prefix) => {
       extensions: ['crawljob']
     }]
   }).then(file => {
-    console.log("File cancelled? " + file.canceled);
     if (!file.canceled && folders.length > 0 && folders[0].path != '') {
       console.log(file.filePath.toString());
-      folders.forEach(folder => {
-        console.log("\t" + folder.path);
-      })
+
+      fs.writeFile(
+        file.filePath.toString(), 
+        outText, 
+        (err) => {if (err) throw err;}
+      );
+
+      console.log("Finished writing");
     } else {
       console.log("Not writing");
     }
