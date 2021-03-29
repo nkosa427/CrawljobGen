@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu, MenuItem } = require('electron');
 const path = require('path');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
@@ -22,6 +22,34 @@ const createWindow = () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  const menu = new Menu()
+  menu.append(new MenuItem({
+    label: 'Electron',
+    submenu: [{
+      role: 'help',
+      accelerator: process.platform === 'darwin' ? 'Alt+Cmd+G' : 'Alt+Shift+G',
+      click: () => { console.log('Electron rocks!') }
+    }]
+  }))
+
+  Menu.setApplicationMenu(menu)
+  
+  const ret = globalShortcut.register('CommandOrControl+R', () => {
+    let choice = dialog.showMessageBoxSync(
+      {
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        title: 'Refresh?',
+        message: 'Are you sure you want to reload?'
+      }
+    );
+
+    if (!choice) {
+      console.log("reloading");
+      mainWindow.reload();
+    }
+  });
 };
 
 // This method will be called when Electron has finished
@@ -36,6 +64,8 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+  globalShortcut.unregisterAll();
+  console.log("Shortcuts unregistered");
 });
 
 app.on('activate', () => {
@@ -45,6 +75,8 @@ app.on('activate', () => {
     createWindow();
   }
 });
+
+
 
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
