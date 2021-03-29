@@ -191,8 +191,10 @@ class App extends React.Component{
     return(
       <div>
         <h3>Number of links: {this.state.numLinks}</h3>
-        <button onClick={this.printFolders}>Print Folders</button>
-        <button onClick={this.printState}>Print State</button>
+        <div className='debugButtons'>
+          <button onClick={this.printFolders}>Print Folders</button>
+          <button onClick={this.printState}>Print State</button>
+        </div>
         
         <label>
           Convert Backslash to Forward slash?
@@ -204,11 +206,13 @@ class App extends React.Component{
           />
         </label>
 
+      <div className='debugButtons'>
         <label>Remove from beginning of path: </label>
-        <ReverseEntry 
-          trimPath={this.trimPath}
-          convertSlashes={this.state.convertSlashes}
-        />
+          <ReverseEntry 
+            trimPath={this.trimPath}
+            convertSlashes={this.state.convertSlashes}
+          />
+      </div>
         
         {this.state.categories.map((category, index) => {
           if (category.folderpath != '') {

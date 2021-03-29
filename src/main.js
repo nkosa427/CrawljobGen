@@ -24,21 +24,28 @@ const createWindow = () => {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
-  electronLocalshortcut.register(mainWindow, ['Ctrl+R', 'F5'], () => {
-    let choice = dialog.showMessageBoxSync(
-      {
-        type: 'question',
-        buttons: ['Yes', 'No'],
-        title: 'Refresh?',
-        message: 'Are you sure you want to reload?'
+  mainWindow.on('focus', (event) => {
+    console.log("focus");
+    globalShortcut.register("CommandOrControl+R", () => {
+      let choice = dialog.showMessageBoxSync(
+        {
+          type: 'question',
+          buttons: ['Yes', 'No'],
+          title: 'Refresh?',
+          message: 'Are you sure you want to reload?'
+        }
+      );
+  
+      if (!choice) {
+        console.log("reloading");
+        mainWindow.reload();
       }
-    );
-
-    if (!choice) {
-      console.log("reloading");
-      mainWindow.reload();
-    }
+    });
   });
+
+  mainWindow.on('blur', () =>{
+    globalShortcut.unregister('CommandOrControl+R');
+  })
 
 };
 

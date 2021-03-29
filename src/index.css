@@ -19,9 +19,18 @@ body {
 }
 
 .colorA {
-  background-color: antiquewhite;
+  background-color: rgb(255, 219, 185);
 }
 
 .colorB {
-  background-color: cadetblue;
+  background-color: rgb(208, 246, 218);
+}
+
+.debugButtons {
+  width: 100%;
+}
+
+button {
+  padding: 1%;
+  margin: 1%;
 }
