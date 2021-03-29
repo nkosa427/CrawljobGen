@@ -55,7 +55,6 @@ app.on('window-all-closed', () => {
     app.quit();
   }
   globalShortcut.unregisterAll();
-  electronLocalshortcut.unregisterAll(mainWindow);
   console.log("Shortcuts unregistered");
 });
 
@@ -105,9 +104,8 @@ ipcMain.on('printFile', (event, folders, convert, prefix) => {
 
   for (let i = 0; i < folders.length; i++){
     for (let j = 0; j < folders[i].links.length; j++){
-      outText += folders[i].path + "\n";
-      outText += folders[i].links[j] + "\n\n";
-      console.log("printing " + folders[i].path+" - "+folders[i].links[j]);
+      outText += "text=" + folders[i].links[j] + "\n";
+      outText += "downloadFolder=" + folders[i].path + "\n\n";
     }
   }
 
