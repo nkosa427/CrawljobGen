@@ -1,6 +1,7 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import Category from './components/category.jsx';
+import ReverseEntry from './components/reverseEntry.jsx'
 
 const { ipcRenderer } = require('electron');
 
@@ -14,6 +15,8 @@ class App extends React.Component{
     this.onSubCategoryAdded = this.onSubCategoryAdded.bind(this);
     this.printState = this.printState.bind(this);
     this.getFolderIndex = this.getFolderIndex.bind(this);
+    this.convertSlashes = this.convertSlashes.bind(this);
+    this.trimPath = this.trimPath.bind(this);
 
     this.state = {
       categories: [{
@@ -24,13 +27,24 @@ class App extends React.Component{
       folders: [{
         path: '',
         links: []
-      }]
+      }],
+      convertSlashes: true
     }  
   }
 
   printState(){
     // this.printStruct(this.state.categories);
-    console.log(this.state)
+    console.log(this.state);
+  }
+
+  convertSlashes(){
+    this.setState({
+      convertSlashes: !this.state.convertSlashes
+    });
+  }
+
+  trimPath(prefix){
+    console.log("trim " + prefix)
   }
 
   getFolderIndex(fp){
@@ -133,7 +147,24 @@ class App extends React.Component{
   render() {
     return(
       <div>
-        <button onClick={this.printFolders}>Print State</button>
+        <button onClick={this.printFolders}>Print Folders</button>
+        <button onClick={this.printState}>Print State</button>
+        
+        <label>
+          Convert Forward to Backslash?
+          <input 
+            type="checkbox" 
+            name="convertSlashes" 
+            checked={this.state.convertSlashes} 
+            onChange={this.convertSlashes}
+          />
+        </label>
+
+        <label>Remove from beginning of path: </label>
+        <ReverseEntry 
+          trimPath={this.trimPath}
+        />
+        
         {this.state.categories.map((category, index) => {
           if (category.folderpath != '') {
             return <Category 
@@ -146,6 +177,7 @@ class App extends React.Component{
             />
           }
         })}
+
         <button onClick={this.addNewCategory}>Add Category</button>
       </div>
    );
