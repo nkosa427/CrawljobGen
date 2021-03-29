@@ -1,5 +1,5 @@
 const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu, MenuItem } = require('electron');
-const path = require('path');
+const electronLocalshortcut = require('electron-localshortcut');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -23,19 +23,7 @@ const createWindow = () => {
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
 
-  const menu = new Menu()
-  menu.append(new MenuItem({
-    label: 'Electron',
-    submenu: [{
-      role: 'help',
-      accelerator: process.platform === 'darwin' ? 'Alt+Cmd+G' : 'Alt+Shift+G',
-      click: () => { console.log('Electron rocks!') }
-    }]
-  }))
-
-  Menu.setApplicationMenu(menu)
-  
-  const ret = globalShortcut.register('CommandOrControl+R', () => {
+  electronLocalshortcut.register(mainWindow, ['Ctrl+R', 'F5'], () => {
     let choice = dialog.showMessageBoxSync(
       {
         type: 'question',
@@ -50,6 +38,7 @@ const createWindow = () => {
       mainWindow.reload();
     }
   });
+
 };
 
 // This method will be called when Electron has finished
@@ -65,6 +54,7 @@ app.on('window-all-closed', () => {
     app.quit();
   }
   globalShortcut.unregisterAll();
+  electronLocalshortcut.unregisterAll(mainWindow);
   console.log("Shortcuts unregistered");
 });
 
