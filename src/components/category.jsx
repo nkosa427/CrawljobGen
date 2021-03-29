@@ -90,7 +90,7 @@ export default class Category extends React.Component {
               key={subcategory.folderpath}
               index={index}
               path={subcategory.folderpath}
-              displayPath={category.displayPath}
+              displayPath={subcategory.displayPath}
               passLink={this.props.passLink}
               level={this.props.level + 1}
               onAddSub={this.onSubCategoryAdded}
