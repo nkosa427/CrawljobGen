@@ -17,7 +17,10 @@ export default class ReverseEntry extends React.Component {
   handleChange(event){
     this.setState({
       text: event.target.value
-    })
+    }, () => {
+      this.props.trimPath(this.state.text);
+    });
+    
   }
 
   render(){
@@ -26,7 +29,7 @@ export default class ReverseEntry extends React.Component {
       <input 
         value={this.state.text} 
         onChange={this.handleChange}
-        onBlur={this.focusLoss}
+        //onBlur={this.focusLoss}
       />
     )
   }

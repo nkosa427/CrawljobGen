@@ -16,11 +16,13 @@ class App extends React.Component{
     this.printState = this.printState.bind(this);
     this.getFolderIndex = this.getFolderIndex.bind(this);
     this.convertSlashes = this.convertSlashes.bind(this);
+    this.convertSlashesChecked = this.convertSlashesChecked.bind(this);
     this.trimPath = this.trimPath.bind(this);
 
     this.state = {
       categories: [{
         folderpath: '',
+        displayPath: '',
         links: [],
         subcategories: [] 
       }],
@@ -38,13 +40,43 @@ class App extends React.Component{
   }
 
   convertSlashes(){
+    let categoryCopy = this.state.categories;
+
+    if (this.state.convertSlashes) {
+      categoryCopy.forEach((category, index) => {
+        let dir = category.folderpath.replace(/\\/g, "/");
+        categoryCopy[index].displayPath = dir;
+      });
+    } else {
+      categoryCopy.forEach((category, index) => {
+        let dir = category.folderpath.replace(/\//g, "\\");
+        categoryCopy[index].displayPath = dir;
+      });
+    }
+
     this.setState({
-      convertSlashes: !this.state.convertSlashes
+      categories: categoryCopy
     });
   }
 
+  convertSlashesChecked(){
+    this.setState({
+      convertSlashes: !this.state.convertSlashes
+    }, () => {this.convertSlashes()});
+  }
+
   trimPath(prefix){
-    console.log("trim " + prefix)
+    let categoryCopy = this.state.categories;
+    categoryCopy.forEach((category, index) => {
+      let dir = category.folderpath.replace(prefix, '');
+      if (this.state.convertSlashes){
+        dir = dir.replace(/\\/g, "/");
+      }
+      categoryCopy[index].displayPath = dir;
+    });
+    this.setState({
+      categories: categoryCopy
+    });
   }
 
   getFolderIndex(fp){
@@ -80,6 +112,7 @@ class App extends React.Component{
           categories: [
             {
               folderpath: fp,
+              displayPath: fp,
               links: [],
               subcategories: []
             }
@@ -88,13 +121,14 @@ class App extends React.Component{
             path: fp,
             links: []
           }]
-        });
+        }, () => {this.convertSlashes()});
       } else {
         this.setState({
           categories: [
             ...this.state.categories, 
             {
               folderpath: fp,
+              displayPath: fp,
               links: [],
               subcategories: []
             }
@@ -106,7 +140,7 @@ class App extends React.Component{
               links: []
             }
           ]
-        });
+        }, () => {this.convertSlashes()});
       }
     } else {
       console.log("Invalid folder");
@@ -151,18 +185,19 @@ class App extends React.Component{
         <button onClick={this.printState}>Print State</button>
         
         <label>
-          Convert Forward to Backslash?
+          Convert Backslash to Forward slash?
           <input 
             type="checkbox" 
             name="convertSlashes" 
             checked={this.state.convertSlashes} 
-            onChange={this.convertSlashes}
+            onChange={this.convertSlashesChecked}
           />
         </label>
 
         <label>Remove from beginning of path: </label>
         <ReverseEntry 
           trimPath={this.trimPath}
+          convertSlashes={this.state.convertSlashes}
         />
         
         {this.state.categories.map((category, index) => {
@@ -171,6 +206,7 @@ class App extends React.Component{
               key={category.folderpath}
               index={index}
               path={category.folderpath} 
+              displayPath={category.displayPath}
               passLink={this.linkAdded}
               onAddSub={this.onSubCategoryAdded}
               level={0}
