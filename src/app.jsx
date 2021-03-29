@@ -18,6 +18,7 @@ class App extends React.Component{
     this.convertSlashes = this.convertSlashes.bind(this);
     this.convertSlashesChecked = this.convertSlashesChecked.bind(this);
     this.trimPath = this.trimPath.bind(this);
+    this.printFile = this.printFile.bind(this);
 
     this.state = {
       categories: [{
@@ -30,7 +31,9 @@ class App extends React.Component{
         path: '',
         links: []
       }],
-      convertSlashes: true
+      convertSlashes: true,
+      prefix: '',
+      numLinks: 0
     }  
   }
 
@@ -75,7 +78,8 @@ class App extends React.Component{
       categoryCopy[index].displayPath = dir;
     });
     this.setState({
-      categories: categoryCopy
+      categories: categoryCopy,
+      prefix: prefix
     });
   }
 
@@ -94,7 +98,8 @@ class App extends React.Component{
     let foldersCopy = this.state.folders;
     foldersCopy[index].links.push(link);
     this.setState({
-      folders: foldersCopy
+      folders: foldersCopy,
+      numLinks: this.state.numLinks + 1
     });
   }
 
@@ -178,9 +183,14 @@ class App extends React.Component{
     }
   }
 
+  printFile(){
+    ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
+  }
+
   render() {
     return(
       <div>
+        <h3>Number of links: {this.state.numLinks}</h3>
         <button onClick={this.printFolders}>Print Folders</button>
         <button onClick={this.printState}>Print State</button>
         
@@ -215,6 +225,7 @@ class App extends React.Component{
         })}
 
         <button onClick={this.addNewCategory}>Add Category</button>
+        <button onClick={this.printFile}>Print to File</button>
       </div>
    );
   }
