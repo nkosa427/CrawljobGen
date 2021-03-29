@@ -17,7 +17,7 @@ export default class Category extends React.Component {
       folderpath: this.props.path,
       links: [],
       subcategories: []
-    }  
+    }
   }
 
   addBlankInput(){
@@ -64,13 +64,13 @@ export default class Category extends React.Component {
   }
 
   render() {
+    let color = (this.props.level % 2 == 0) ? 'A' : 'B';
     return (
-      <div>
+      <div className={`category color${color}`}>
         <fieldset>
           <legend>
           <h3>{this.state.folderpath}</h3>
           </legend>
-          <button onClick={this.onSubCategoryAdded}>debug</button>
           <button onClick={this.addSubCategory}>New Sub-Category</button>
           {this.state.links.map( (link, index) => {
             return <LinkEntry
