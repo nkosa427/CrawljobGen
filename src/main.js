@@ -10,11 +10,11 @@ const createWindow = () => {
   // Create the browser window.
   const mainWindow = new BrowserWindow({
     width: 800,
-    height: 600,
+    height: 1000,
     webPreferences: {
       nodeIntegration: true,
       contextIsolation: false
-    }
+    },
   });
 
   // and load the index.html of the app.
@@ -22,6 +22,8 @@ const createWindow = () => {
 
   // Open the DevTools.
   mainWindow.webContents.openDevTools();
+
+  mainWindow.setMenu(null);
 
   mainWindow.on('focus', (event) => {
     console.log("focus");
@@ -44,8 +46,20 @@ const createWindow = () => {
 
   mainWindow.on('blur', () =>{
     globalShortcut.unregister('CommandOrControl+R');
-  })
+  });
 
+  mainWindow.on('close', (e) => {
+    const choice = dialog.showMessageBoxSync(
+      {
+        type: 'question',
+        buttons: ['Yes', 'No'],
+        title: 'Confirm',
+        message: 'Are you sure you want to quit?'
+      });
+    if (choice === 1) {
+      e.preventDefault();
+    }
+  });
 };
 
 // This method will be called when Electron has finished
