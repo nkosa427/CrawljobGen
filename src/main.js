@@ -1,5 +1,4 @@
 const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu, MenuItem } = require('electron');
-const electronLocalshortcut = require('electron-localshortcut');
 const fs = require('fs');
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
