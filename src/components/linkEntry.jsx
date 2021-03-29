@@ -44,8 +44,11 @@ export default class LinkEntry extends React.Component {
         onChange={e => {this.setState({text: e.target.value})}}
       />
     }
+
+    let removebtn = <button>Remove</button>
+
     return(
-      inputForm
+      inputForm, <button>Remove</button>
     )
   }
 }
