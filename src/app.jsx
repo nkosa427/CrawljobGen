@@ -20,6 +20,8 @@ class App extends React.Component{
     this.trimPath = this.trimPath.bind(this);
     this.printFile = this.printFile.bind(this);
     this.removeLink = this.removeLink.bind(this);
+    this.addBasePath = this.addBasePath.bind(this);
+    this.removeBasePath = this.removeBasePath.bind(this);
 
     this.state = {
       categories: [{
@@ -34,7 +36,8 @@ class App extends React.Component{
       }],
       convertSlashes: true,
       prefix: '',
-      numLinks: 0
+      numLinks: 0,
+      basePath: ''
     }  
   }
 
@@ -60,7 +63,7 @@ class App extends React.Component{
 
     this.setState({
       categories: categoryCopy
-    });
+    }, () => this.trimPath(this.state.prefix));
   }
 
   convertSlashesChecked(){
@@ -168,18 +171,6 @@ class App extends React.Component{
     }
   }
 
-  printFolders(){
-    this.state.folders.forEach(folder => {
-      console.log("Folder: " + folder.path);
-      if (folder.links && folder.links.length > 0){
-        folder.links.forEach(link => {
-          console.log("\t" + link);
-        });
-      }
-      
-    })
-  }
-
   onSubCategoryAdded(fp){
     console.log("onSubCategoryAdded for " + fp);
     if (this.state.folders.length == 1 && this.state.folders[0] == ''){
@@ -197,6 +188,36 @@ class App extends React.Component{
         }]
       });
     }
+  }
+
+  printFolders(){
+    this.state.folders.forEach(folder => {
+      console.log("Folder: " + folder.path);
+      if (folder.links && folder.links.length > 0){
+        folder.links.forEach(link => {
+          console.log("\t" + link);
+        });
+      }
+      
+    })
+  }
+
+  addBasePath(){
+    var fp = String(ipcRenderer.sendSync('open-dialog') + "\\");
+    if (fp != ["\\"]){
+      this.setState({
+        basePath: fp,
+        prefix: fp
+      });
+      this.trimPath(fp)
+    }
+  }
+
+  removeBasePath(){
+    this.setState({
+      basePath: '',
+      prefix: ''
+    })
   }
 
   printFile(){
@@ -228,6 +249,12 @@ class App extends React.Component{
             trimPath={this.trimPath}
             convertSlashes={this.state.convertSlashes}
           />
+      </div>
+
+      <div>
+        <button onClick={this.addBasePath}>Add base path:</button>
+        <label>{this.state.basePath}</label>
+        {this.state.basePath != '' && <button onClick={this.removeBasePath}>Remove Base Path</button>}
       </div>
         
         {this.state.categories.map((category, index) => {
