@@ -55,7 +55,7 @@ export default class Category extends React.Component {
 
   addSubCategory(){
     /*Sends message to electron main process to open folder select dialog.
-      uses sendSync, so a response is needed to proceed. */
+      uses sendSync, so a response is needed to proceed.  */
     var fp = String(ipcRenderer.sendSync('open-dialog', this.props.path));
     if (fp != this.state.folderpath && fp != []){ //If folder was selected and if that folder already isn't in the array
       this.setState({
