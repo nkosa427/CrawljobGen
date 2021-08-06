@@ -1,5 +1,8 @@
 const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu, MenuItem } = require('electron');
 const fs = require('fs');
+const { platform } = require('os');
+
+const slash = process.platform === "win32" ? "\\" : "/"
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -13,7 +16,8 @@ const createWindow = () => {
     height: 900,
     webPreferences: {
       nodeIntegration: true,
-      contextIsolation: false
+      contextIsolation: false,
+      enableRemoteModule: true
     },
   });
 
@@ -159,3 +163,35 @@ ipcMain.on('printFile', (event, folders, convert, prefix) => {
     console.log(err)
   });
 });
+
+ipcMain.on('recurse', (event, defPath) => {
+  dialog.showOpenDialog( {
+    properties: ['openDirectory'],
+    defaultPath: defPath
+  }).then( async (result) => {
+    var folders = await recurse(String(result.filePaths), String(result.filePaths));
+    folders = JSON.parse(JSON.stringify(folders))
+    event.returnValue = folders;
+  }).catch(err => {
+    console.log(err)
+  })
+})
+
+async function recurse(fp, name){
+  // console.log("Recurse called on: " + fp)
+  var folders = {
+    path: name,
+    sub: []
+  }
+
+  // console.log(folders.path)
+  fs.readdirSync(fp).forEach(async file => {
+    if (fs.statSync(fp + slash + file).isDirectory()){
+      // console.log("on child of " + fp + ": " + file)
+      folders.sub.push(await recurse(fp + slash + file, file))
+    }
+  })
+  // console.log("returning")
+  console.log(folders)
+  return folders
+}

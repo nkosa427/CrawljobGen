@@ -22,6 +22,7 @@ class App extends React.Component{
     this.removeLink = this.removeLink.bind(this);
     this.addBasePath = this.addBasePath.bind(this);
     this.removeBasePath = this.removeBasePath.bind(this);
+    this.recurse = this.recurse.bind(this);
 
     this.state = {
       categories: [{
@@ -203,6 +204,7 @@ class App extends React.Component{
   }
 
   addBasePath(){
+    console.log("addbasepath called")
     var fp = String(ipcRenderer.sendSync('open-dialog') + "\\");
     if (fp != ["\\"]){
       this.setState({
@@ -222,6 +224,12 @@ class App extends React.Component{
 
   printFile(){
     ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
+  }
+
+  recurse(){
+    var folders = ipcRenderer.sendSync('recurse');
+    console.log(folders)
+    // FileTree.start(fp);
   }
 
   render() {
@@ -256,6 +264,7 @@ class App extends React.Component{
         <label>{this.state.basePath}</label>
         {this.state.basePath != '' && <button onClick={this.removeBasePath}>Remove Base Path</button>}
       </div>
+      <button onClick={this.recurse}>Recurse</button>
         
         {this.state.categories.map((category, index) => {
           if (category.folderpath != '') {
