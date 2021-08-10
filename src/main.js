@@ -195,3 +195,29 @@ async function recurse(fp, name){
   console.log(folders)
   return folders
 }
+
+ipcMain.on('getDir', (event, dir) => {
+  var subDirs = []
+  fs.readdirSync(dir, {withFileTypes: true}).forEach(file => {
+    // if (fs.statSync(dir + slash + file).isDirectory()){
+    if (file.isDirectory()){
+      var subDir = {
+        name: file,
+        hasSubDirs: false
+      }
+      var children = fs.readdirSync(dir+slash+file.name, {withFileTypes: true})
+      for (let i = 0; i < children.length && !subDir.hasSubDirs; i++) {
+        if (children[i].isDirectory()){
+          subDir.hasSubDirs = true
+        }
+      }
+
+      console.log("dir: " + file.name)
+
+      subDirs.push(subDir)
+    }
+  })
+
+  subDirs = JSON.parse(JSON.stringify(subDirs))
+  event.returnValue = subDirs
+})

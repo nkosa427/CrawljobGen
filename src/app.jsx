@@ -17,13 +17,15 @@ class App extends React.Component{
     this.getFolderIndex = this.getFolderIndex.bind(this);
     this.convertSlashes = this.convertSlashes.bind(this);
     this.convertSlashesChecked = this.convertSlashesChecked.bind(this);
+    this.usePrefixChecked = this.usePrefixChecked.bind(this);
     this.trimPath = this.trimPath.bind(this);
     this.printFile = this.printFile.bind(this);
     this.removeLink = this.removeLink.bind(this);
     this.addBasePath = this.addBasePath.bind(this);
     this.removeBasePath = this.removeBasePath.bind(this);
     this.recurse = this.recurse.bind(this);
-
+    this.getDir = this.getDir.bind(this);
+    
     this.state = {
       categories: [{
         folderpath: '',
@@ -36,6 +38,7 @@ class App extends React.Component{
         links: []
       }],
       convertSlashes: true,
+      usePrefix: true,
       prefix: '',
       numLinks: 0,
       basePath: ''
@@ -71,6 +74,12 @@ class App extends React.Component{
     this.setState({
       convertSlashes: !this.state.convertSlashes
     }, () => {this.convertSlashes()});
+  }
+
+  usePrefixChecked(){
+    this.setState({
+      usePrefix: !this.state.usePrefix
+    })
   }
 
   trimPath(prefix){
@@ -207,11 +216,16 @@ class App extends React.Component{
     console.log("addbasepath called")
     var fp = String(ipcRenderer.sendSync('open-dialog') + "\\");
     if (fp != ["\\"]){
+      if (this.state.usePrefix){
+        this.setState({
+          prefix: fp
+        });
+        this.trimPath(fp)
+      }
+
       this.setState({
-        basePath: fp,
-        prefix: fp
-      });
-      this.trimPath(fp)
+        basePath: fp
+      }, () => {this.getDir(fp)});
     }
   }
 
@@ -230,6 +244,12 @@ class App extends React.Component{
     var folders = ipcRenderer.sendSync('recurse');
     console.log(folders)
     // FileTree.start(fp);
+  }
+
+  getDir(fp){
+    console.log("getdir")
+    var dir = ipcRenderer.sendSync('getDir', fp)
+    console.log(dir)
   }
 
   render() {
@@ -261,6 +281,16 @@ class App extends React.Component{
 
       <div>
         <button onClick={this.addBasePath}>Add base path:</button>
+        <label>
+          Use base path as prefix?
+          <input 
+            type="checkbox" 
+            name="basePathPrefix" 
+            checked={this.state.usePrefix}
+            onChange={this.usePrefixChecked}
+          />
+        </label>
+
         <label>{this.state.basePath}</label>
         {this.state.basePath != '' && <button onClick={this.removeBasePath}>Remove Base Path</button>}
       </div>
