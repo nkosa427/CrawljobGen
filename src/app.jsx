@@ -3,6 +3,7 @@ import * as ReactDOM from 'react-dom';
 import Category from './components/category.jsx';
 import FolderTree from './components/folderTree.jsx';
 import ReverseEntry from './components/reverseEntry.jsx'
+import mock from './mock.js';
 
 const { ipcRenderer } = require('electron');
 
@@ -41,14 +42,23 @@ class App extends React.Component{
       prefix: '',
       numLinks: 0,
       basePath: '',
-      topDir: ''
+      topDir: '',
+      directories: {
+        dir: "",
+        path: "",
+        links: [],
+        children: []
+      }
     }  
   }
 
   componentDidMount() {
     let dir = ipcRenderer.sendSync('getTopDir')
     this.setState({
-      topDir: dir.topDir
+      topDir: dir.topDir,
+      directories: {
+        dir: dir,
+      }
     })
   }
 
@@ -303,8 +313,12 @@ class App extends React.Component{
         <button onClick={this.printFile}>Print to File</button>
       
         <FolderTree 
-          topDir = {this.state.topDir}
+          name = {mock.dir}
+          path = {mock.path}
+          links = {mock.links}
+          children = {mock.children}
           getSubDirs = {this.getSubDirs}
+
         />
     </div>
    );
