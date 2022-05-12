@@ -44,7 +44,7 @@ class App extends React.Component{
       basePath: '',
       topDir: '',
       directories: {
-        dir: "",
+        name: "",
         path: "",
         links: [],
         children: []
@@ -57,7 +57,48 @@ class App extends React.Component{
     this.setState({
       topDir: dir.topDir,
       directories: {
-        dir: dir,
+        name: "/",
+        path: "/",
+        links: [],
+        children: [
+          {
+            name: "a1",
+            path: "/a1",
+            links: [],
+            children: [
+              {
+                name: "a1b1",
+                path: "/a1/b1",
+                links: [],
+                children: []
+              }
+           ]
+          }, 
+          {
+            name: "b1",
+            path: "/b1",
+            links: [],
+            children: [
+              {
+                name: "b1a1",
+                path: "/b1/a1",
+                links: [],
+                children: [{
+                  name: "b1a1a1",
+                  path: "/b1/a1/a1",
+                  links: [],
+                  children: []
+                }]
+              }, 
+              {
+                name: "b1a2",
+                path: "/b1/a2",
+                links: [],
+                children: []
+              }
+            ]
+          }
+        ]
       }
     })
   }
@@ -251,10 +292,27 @@ class App extends React.Component{
     ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
   }
 
-  getSubDirs(dir) {
-    console.log('calling dir', dir)
-    var dirs = ipcRenderer.sendSync('getSubDirs', dir)
-    console.log('dirs:', dirs)
+  getSubDirs(name) {
+    console.log('called name', name)
+    // var dirs = ipcRenderer.sendSync('getSubDirs', dir)
+    // console.log('dirs:', dirs)
+
+    let dirState = this.state.directories
+
+    this.setState({
+      directories: {
+        ...this.state.directories,
+        children: [
+          ...this.state.directories.children,
+          {
+            name: "c1",
+            path: "/c1",
+            links: [],
+            children: [],
+          }
+        ]
+      }
+    })
   }
 
   render() {
@@ -313,10 +371,10 @@ class App extends React.Component{
         <button onClick={this.printFile}>Print to File</button>
       
         <FolderTree 
-          name = {mock.dir}
-          path = {mock.path}
-          links = {mock.links}
-          children = {mock.children}
+          name = {this.state.directories.name}
+          path = {this.state.directories.path}
+          links = {this.state.directories.links}
+          children = {this.state.directories.children}
           getSubDirs = {this.getSubDirs}
 
         />
