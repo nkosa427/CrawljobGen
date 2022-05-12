@@ -1,5 +1,6 @@
 const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu, MenuItem } = require('electron');
 const fs = require('fs');
+const yaml = require('js-yaml')
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -103,7 +104,7 @@ ipcMain.on('open-dialog', (event, defPath) => {
   })
 });
 
-function convertPaths(folders, convert, prefix) {
+function convertPathsToUnix(folders, convert, prefix) {
   folders.forEach(folder => {
     folder.path = folder.path.replace(prefix, '');
     if (convert) {
@@ -114,9 +115,17 @@ function convertPaths(folders, convert, prefix) {
   return folders;
 }
 
+function convertPathsToWindows(obj) {
+  Object.keys(obj).forEach(key => {
+    obj[key] = obj[key].replace(/\//g, "\\")
+  })
+  return obj
+  // return str.replace(/\\/g, "/");
+}
+
 ipcMain.on('printFile', (event, folders, convert, prefix) => {
   if (convert || prefix != ''){
-    folders = convertPaths(folders, convert, prefix);
+    folders = convertPathsToUnix(folders, convert, prefix);
   }
 
   var outText = "";
@@ -159,3 +168,51 @@ ipcMain.on('printFile', (event, folders, convert, prefix) => {
     console.log(err)
   });
 });
+
+async function getDirectories(dir) {
+  fs.access(dir, (err) => {
+    if (err) {
+      console.log("Error accessing directory:", dir)
+    } else {
+      fs.readdir(dir, { withFileTypes: true }, (err, files) => {
+        if (err) {
+          console.log("Error reading directory ", dir, err)
+          return "Error reading directory " + err
+        }
+        files = files.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name)
+        console.log('f:', files, typeof(files))
+        return files
+      })
+    }
+  })
+}
+
+ipcMain.on('getSubDirs', (event, dir) => {
+  fs.access(dir, (err) => {
+    if (err) {
+      console.log("Error accessing directory:", dir)
+    } else {
+      fs.readdir(dir, { withFileTypes: true }, (err, files) => {
+        if (err) {
+          console.log("Error reading directory ", dir, err)
+          return "Error reading directory " + err
+        }
+        files = files.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name)
+        event.returnValue = files
+      })
+    }
+  })
+})
+
+ipcMain.on('getTopDir', (event) => {
+  try {
+    let fc = fs.readFileSync('./config.yaml', 'utf8')
+    let data = yaml.load(fc)
+    if (process.platform == "win32" ) {
+      data = convertPathsToWindows(data)
+    }
+    event.returnValue = data
+  } catch (e) {
+    console.log(e)
+  }
+})
