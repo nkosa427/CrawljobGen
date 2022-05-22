@@ -91,6 +91,10 @@ app.on('activate', () => {
 // In this file you can include the rest of your app's specific main process
 // code. You can also put them in separate files and import them here.
 
+ipcMain.on('getPlatform', (event) => {
+  event.returnValue = process.platform;
+})
+
 ipcMain.on('open-dialog', (event, defPath) => {
   dialog.showOpenDialog( {
     properties: ['openDirectory', 'openFile'],
@@ -110,8 +114,22 @@ function convertPaths(folders, convert, prefix) {
       folder.path = folder.path.replace(/\\/g, "/")
     }
   });
-
   return folders;
+}
+
+function convertPathsToWindows(obj) {
+  Object.keys(obj).forEach(key => {
+    obj[key] = obj[key].replace(/\//g, "\\")
+  })
+  return obj
+  // return str.replace(/\\/g, "/");
+}
+
+function removeTrailingSlash(obj) {
+  Object.keys(obj).forEach(key => {
+    obj[key] = obj[key].replace(/(?:\/|\\)$/, '')
+  })
+  return obj
 }
 
 ipcMain.on('printFile', (event, folders, convert, prefix) => {
@@ -159,3 +177,70 @@ ipcMain.on('printFile', (event, folders, convert, prefix) => {
     console.log(err)
   });
 });
+
+async function getDirectories(dir) {
+  fs.access(dir, (err) => {
+    if (err) {
+      console.log("Error accessing directory:", dir)
+    } else {
+      fs.readdir(dir, { withFileTypes: true }, (err, files) => {
+        if (err) {
+          console.log("Error reading directory ", dir, err)
+          return "Error reading directory " + err
+        }
+        files = files.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name)
+        console.log('f:', files, typeof(files))
+        return files
+      })
+    }
+  })
+}
+
+function directoryValid(dir) {
+  try {
+    fs.accessSync(dir)
+    return true
+  } catch (e) {
+    console.log("Error accessing directory:", dir)
+    return false
+  }
+  // fs.access(dir, (err) => {
+  //   if (err) {
+  //     console.log("Error accessing directory:", dir)
+  //     return false
+  //   } else {
+  //     return true
+  //   }
+  // })
+}
+
+ipcMain.on('getSubDirs', (event, dir) => {
+  if (!directoryValid(dir)) {
+    event.returnValue = null;
+  } else {
+    fs.readdir(dir, { withFileTypes: true }, (err, files) => {
+      if (err) {
+        console.log("Error reading directory ", dir, err)
+        return "Error reading directory " + err
+      }
+      files = files.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name)
+      event.returnValue = files
+    })
+  }
+})
+
+ipcMain.on('getTopDir', (event) => {
+  try {
+    let fc = fs.readFileSync('./config.yaml', 'utf8')
+    let data = yaml.load(fc)
+    if (process.platform == "win32" ) {
+      data = convertPathsToWindows(data)
+    }
+    data = removeTrailingSlash(data)
+    // console.log("data:", data)
+    event.returnValue = data
+  } catch (e) {
+    console.log(e)
+    event.returnValue = null
+  }
+})
