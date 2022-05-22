@@ -108,7 +108,7 @@ ipcMain.on('open-dialog', (event, defPath) => {
   })
 });
 
-function convertPaths(folders, convert, prefix) {
+function convertPathsToUnix(folders, convert, prefix) {
   folders.forEach(folder => {
     folder.path = folder.path.replace(prefix, '');
     if (convert) {
@@ -135,7 +135,7 @@ function removeTrailingSlash(obj) {
 
 ipcMain.on('printFile', (event, folders, convert, prefix) => {
   if (convert || prefix != ''){
-    folders = convertPaths(folders, convert, prefix);
+    folders = convertPathsToUnix(folders, convert, prefix);
   }
 
   var outText = "";

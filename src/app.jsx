@@ -1,14 +1,17 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import Category from './components/category.jsx';
+import FolderTree from './components/folderTree.jsx';
 import ReverseEntry from './components/reverseEntry.jsx'
 import FolderTree from './components/folderTree.jsx';
+
 
 const { ipcRenderer } = require('electron');
 class App extends React.Component{
   constructor(props){
     super(props);
     
+    this.handleTopDirChange = this.handleTopDirChange.bind(this);
     this.addNewCategory = this.addNewCategory.bind(this);
     this.linkAdded = this.linkAdded.bind(this);
     this.printFolders = this.printFolders.bind(this);
@@ -112,11 +115,18 @@ class App extends React.Component{
         // }
       })
     }
+
   }
 
   printState(){
     // this.printStruct(this.state.categories);
     console.log(this.state);
+  }
+
+  handleTopDirChange(event) {
+    this.setState({
+      topDir: event.target.value
+    });
   }
 
   convertSlashes(){
@@ -452,9 +462,36 @@ class App extends React.Component{
     // })
   }
 
+  getSubDirs(name) {
+    console.log('called name', name)
+    // var dirs = ipcRenderer.sendSync('getSubDirs', dir)
+    // console.log('dirs:', dirs)
+
+    let dirState = this.state.directories
+
+    this.setState({
+      directories: {
+        ...this.state.directories,
+        children: [
+          ...this.state.directories.children,
+          {
+            name: "c1",
+            path: "/c1",
+            links: [],
+            children: [],
+          }
+        ]
+      }
+    })
+  }
+
   render() {
     return(
       <div>
+        <div>
+          <label>Top level directory: {this.state.topDir}</label>
+        </div>
+
         <h3>Number of links: {this.state.numLinks}</h3>
         <div className='debugButtons'>
           <button onClick={this.printFolders}>Print Folders</button>

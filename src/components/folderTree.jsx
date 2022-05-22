@@ -2,6 +2,7 @@ import React from "react";
 
 const FolderTree = (props) => {
 
+
   const passParents = (path) => {
     // console.log("path:", props.path, "arg:", name)
     console.log("FT path:", path,)
@@ -21,6 +22,7 @@ const FolderTree = (props) => {
           name = {child.name}
           path = {child.path}
           links = {child.links}
+
           parent = {props.name}
           children = {child.children}
           getSubDirs = {passParents}
