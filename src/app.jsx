@@ -1,7 +1,9 @@
 import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import Category from './components/category.jsx';
+import FolderTree from './components/folderTree.jsx';
 import ReverseEntry from './components/reverseEntry.jsx'
+import mock from './mock.js';
 
 const { ipcRenderer } = require('electron');
 
@@ -9,6 +11,7 @@ class App extends React.Component{
   constructor(props){
     super(props);
     
+    this.handleTopDirChange = this.handleTopDirChange.bind(this);
     this.addNewCategory = this.addNewCategory.bind(this);
     this.linkAdded = this.linkAdded.bind(this);
     this.printFolders = this.printFolders.bind(this);
@@ -22,6 +25,7 @@ class App extends React.Component{
     this.removeLink = this.removeLink.bind(this);
     this.addBasePath = this.addBasePath.bind(this);
     this.removeBasePath = this.removeBasePath.bind(this);
+    this.getSubDirs = this.getSubDirs.bind(this);
 
     this.state = {
       categories: [{
@@ -37,13 +41,77 @@ class App extends React.Component{
       convertSlashes: true,
       prefix: '',
       numLinks: 0,
-      basePath: ''
+      basePath: '',
+      topDir: '',
+      directories: {
+        name: "",
+        path: "",
+        links: [],
+        children: []
+      }
     }  
+  }
+
+  componentDidMount() {
+    let dir = ipcRenderer.sendSync('getTopDir')
+    this.setState({
+      topDir: dir.topDir,
+      directories: {
+        name: "/",
+        path: "/",
+        links: [],
+        children: [
+          {
+            name: "a1",
+            path: "/a1",
+            links: [],
+            children: [
+              {
+                name: "a1b1",
+                path: "/a1/b1",
+                links: [],
+                children: []
+              }
+           ]
+          }, 
+          {
+            name: "b1",
+            path: "/b1",
+            links: [],
+            children: [
+              {
+                name: "b1a1",
+                path: "/b1/a1",
+                links: [],
+                children: [{
+                  name: "b1a1a1",
+                  path: "/b1/a1/a1",
+                  links: [],
+                  children: []
+                }]
+              }, 
+              {
+                name: "b1a2",
+                path: "/b1/a2",
+                links: [],
+                children: []
+              }
+            ]
+          }
+        ]
+      }
+    })
   }
 
   printState(){
     // this.printStruct(this.state.categories);
     console.log(this.state);
+  }
+
+  handleTopDirChange(event) {
+    this.setState({
+      topDir: event.target.value
+    });
   }
 
   convertSlashes(){
@@ -224,9 +292,36 @@ class App extends React.Component{
     ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
   }
 
+  getSubDirs(name) {
+    console.log('called name', name)
+    // var dirs = ipcRenderer.sendSync('getSubDirs', dir)
+    // console.log('dirs:', dirs)
+
+    let dirState = this.state.directories
+
+    this.setState({
+      directories: {
+        ...this.state.directories,
+        children: [
+          ...this.state.directories.children,
+          {
+            name: "c1",
+            path: "/c1",
+            links: [],
+            children: [],
+          }
+        ]
+      }
+    })
+  }
+
   render() {
     return(
       <div>
+        <div>
+          <label>Top level directory: {this.state.topDir}</label>
+        </div>
+
         <h3>Number of links: {this.state.numLinks}</h3>
         <div className='debugButtons'>
           <button onClick={this.printFolders}>Print Folders</button>
@@ -274,7 +369,16 @@ class App extends React.Component{
 
         <button onClick={this.addNewCategory}>Add Category</button>
         <button onClick={this.printFile}>Print to File</button>
-      </div>
+      
+        <FolderTree 
+          name = {this.state.directories.name}
+          path = {this.state.directories.path}
+          links = {this.state.directories.links}
+          children = {this.state.directories.children}
+          getSubDirs = {this.getSubDirs}
+
+        />
+    </div>
    );
   }
 }
