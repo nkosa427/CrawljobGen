@@ -2,6 +2,7 @@ import * as React from 'react';
 import * as ReactDOM from 'react-dom';
 import Category from './components/category.jsx';
 import ReverseEntry from './components/reverseEntry.jsx'
+import FolderTree from './components/folderTree.jsx';
 
 const { ipcRenderer } = require('electron');
 class App extends React.Component{
@@ -40,7 +41,14 @@ class App extends React.Component{
       useBackslash: false,
       prefix: '',
       numLinks: 0,
-      basePath: ''
+      basePath: '',
+      topDir: '',
+      directories: {
+        name: "",
+        path: "",
+        links: [],
+        children: []
+      }
     }  
   }
 
