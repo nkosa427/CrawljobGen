@@ -2,9 +2,16 @@ import React from "react";
 
 const FolderTree = (props) => {
 
-  const handleExpand = (path) => {
-    console.log(props.children)
+
+  const passParents = (path) => {
+    // console.log("path:", props.path, "arg:", name)
+    console.log("FT path:", path,)
+    // arr.push(props.name)
     props.getSubDirs(path)
+  }
+
+  const handleExpand = (path) => {
+    passParents(path);
   }
 
   const childPaths = (
@@ -15,8 +22,10 @@ const FolderTree = (props) => {
           name = {child.name}
           path = {child.path}
           links = {child.links}
+
+          parent = {props.name}
           children = {child.children}
-          getSubDirs = {props.getSubDirs}
+          getSubDirs = {passParents}
         />
       )
     })
@@ -25,7 +34,7 @@ const FolderTree = (props) => {
   return (
     <div>
         <h4 onClick={() => handleExpand(props.path)}>{props.name}</h4>
-        <div>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 15 }}>
           {childPaths}
         </div>
     </div>

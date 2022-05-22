@@ -3,10 +3,10 @@ import * as ReactDOM from 'react-dom';
 import Category from './components/category.jsx';
 import FolderTree from './components/folderTree.jsx';
 import ReverseEntry from './components/reverseEntry.jsx'
-import mock from './mock.js';
+import FolderTree from './components/folderTree.jsx';
+
 
 const { ipcRenderer } = require('electron');
-
 class App extends React.Component{
   constructor(props){
     super(props);
@@ -26,6 +26,8 @@ class App extends React.Component{
     this.addBasePath = this.addBasePath.bind(this);
     this.removeBasePath = this.removeBasePath.bind(this);
     this.getSubDirs = this.getSubDirs.bind(this);
+    // this.folderSearch = this.folderSearch.bind(this);
+    this.updateDirs = this.updateDirs.bind(this);
 
     this.state = {
       categories: [{
@@ -39,6 +41,7 @@ class App extends React.Component{
         links: []
       }],
       convertSlashes: true,
+      useBackslash: false,
       prefix: '',
       numLinks: 0,
       basePath: '',
@@ -54,53 +57,65 @@ class App extends React.Component{
 
   componentDidMount() {
     let dir = ipcRenderer.sendSync('getTopDir')
-    this.setState({
-      topDir: dir.topDir,
-      directories: {
-        name: "/",
-        path: "/",
-        links: [],
-        children: [
-          {
-            name: "a1",
-            path: "/a1",
-            links: [],
-            children: [
-              {
-                name: "a1b1",
-                path: "/a1/b1",
-                links: [],
-                children: []
-              }
-           ]
-          }, 
-          {
-            name: "b1",
-            path: "/b1",
-            links: [],
-            children: [
-              {
-                name: "b1a1",
-                path: "/b1/a1",
-                links: [],
-                children: [{
-                  name: "b1a1a1",
-                  path: "/b1/a1/a1",
-                  links: [],
-                  children: []
-                }]
-              }, 
-              {
-                name: "b1a2",
-                path: "/b1/a2",
-                links: [],
-                children: []
-              }
-            ]
-          }
-        ]
-      }
-    })
+    let slashType = (ipcRenderer.sendSync('getPlatform') == 'win32' ? "\\" : "/")
+    console.log(slashType, dir)
+    if (dir !== null) {
+      this.setState({
+        topDir: dir.topDir,
+        slashType: slashType,
+        directories: {
+          name: dir.topDir,
+          path: dir.topDir,
+          links: [],
+          children: []
+        }
+        // directories: {
+        //   name: "/",
+        //   path: "/",
+        //   links: [],
+        //   children: [
+        //     {
+        //       name: "a1",
+        //       path: "/a1",
+        //       links: [],
+        //       children: [
+        //         {
+        //           name: "a1b1",
+        //           path: "/a1/b1",
+        //           links: [],
+        //           children: []
+        //         }
+        //      ]
+        //     }, 
+        //     {
+        //       name: "b1",
+        //       path: "/b1",
+        //       links: [],
+        //       children: [
+        //         {
+        //           name: "b1a1",
+        //           path: "/b1/a1",
+        //           links: [],
+        //           children: [{
+        //             name: "b1a1a1",
+        //             path: "/b1/a1/a1",
+        //             links: [],
+        //             children: []
+        //           }]
+        //         }, 
+        //         {
+        //           name: "b1a2",
+        //           path: "/b1/a2",
+        //           links: [],
+        //           children: []
+        //         }
+        //       ]
+        //     }
+        //   ]
+        // }
+      })
+    }
+
   }
 
   printState(){
@@ -291,6 +306,161 @@ class App extends React.Component{
   printFile(){
     ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
   }
+  
+  findNestedObject(object, key, value) {
+    console.log('find', value)
+  }
+
+  // async folderSearch(arr, obj) {
+  //   console.log("call foldersearch for arr:", arr, "obj:", obj)
+  //   // if (arr.length == 0) {
+  //   //   console.log("none")
+  //   // }
+
+  //   obj.children.forEach(async (subDir, index) => {
+  //     if (subDir.name == arr[0]) {
+  //       console.log("match!:", subDir.path, "with", arr[0])
+  //       arr.shift()
+  //       let tmp = await this.folderSearch(arr, subDir)
+  //       console.log("tmp:", tmp)
+  //       obj.children[index] = tmp
+  //       // console.log("obj ret:", obj.children[index])
+
+  //       if (obj.name == this.state.topDir) {
+  //         console.log("dopdir,", obj)
+  //         this.setState({
+  //           directories: obj
+  //         })
+  //       } else {
+  //         console.log("nottop", tmp, "obj ret:", obj.children[index])
+  //         return obj
+  //       }
+  //       // return obj
+  //     }
+  //   })
+
+  //   if (obj.children.length == 0) {
+  //     console.log("searching for dirs in", obj.path)
+  //     var dirs = ipcRenderer.sendSync('getSubDirs', obj.path)
+  //     dirs.forEach((dir) => {
+  //       obj.children.push({
+  //         name: dir,
+  //         path: obj.path + this.state.slashType + dir,
+  //         links: [],
+  //         children: []
+  //       })
+  //     })
+
+  //     console.log("new obj:", obj)
+
+  //     if (obj.name == this.state.topDir) {
+  //         console.log("dopdir 0,", obj)
+  //         this.setState({
+  //           directories: obj
+  //         })
+  //       } else {
+  //         return obj
+  //       }
+  //   }
+
+  //   // console.log("arr:", arr)
+  // }
+
+  updateDirs(path) {
+    let update = (path) => obj => {
+      if (obj.path === path) {
+        console.log("searching for dirs in", obj.path)
+        var dirs = ipcRenderer.sendSync('getSubDirs', obj.path)
+        dirs.forEach((dir) => {
+          obj.children.push({
+            name: dir,
+            path: obj.path + this.state.slashType + dir,
+            links: [],
+            children: []
+          })
+        })
+        console.log("obj:", obj)
+      } else if (obj.children) {
+        return obj.children.some(update(path))
+      }
+    }
+
+    let stateCpy = this.state.directories
+
+    if (stateCpy.children.length == 0) {
+      console.log("searching for dirs in", stateCpy.path)
+      var dirs = ipcRenderer.sendSync('getSubDirs', stateCpy.path)
+      dirs.forEach((dir) => {
+        stateCpy.children.push({
+          name: dir,
+          path: stateCpy.path + this.state.slashType + dir,
+          links: [],
+          children: []
+        })
+      })
+      this.setState({
+        directories: stateCpy
+      })
+    }
+    
+    stateCpy.children.forEach(update(path))
+
+    return stateCpy
+  }
+
+  getSubDirs(path) {
+    // let obj = this.findNestedObject(this.state.directories, "path", name)
+    let arr = path.replace(this.state.topDir, "").split(this.state.slashType)
+    if (arr[0] == "") {
+      arr.shift()
+    }
+
+    // let stateCpy = this.state.directories
+    let stateCpy = this.updateDirs(path)
+
+    // let dirState = this.folderSearch(arr, stateCpy)
+    console.log("new state:", stateCpy)
+
+    this.setState({
+      directories: stateCpy
+    })
+    
+    // console.log("obj:", path.replace(this.state.topDir, ""))
+    
+    // let path = dir.reverse().join(this.state.slashType)
+
+    // console.log('called name', path)
+    // var dirs = ipcRenderer.sendSync('getSubDirs', path)
+    // console.log('dirs:', dirs)
+
+    // let dirState = this.state.directories
+
+    // dirs.forEach((dir) => {
+    //   dirState.children.push({
+    //     name: dir,
+    //     path: path + this.state.slashType + dir,
+    //     links: [],
+    //     children: []
+    //   })
+    // })
+
+
+    //////////////////////////////////////////////////////////
+    // this.setState({
+    //   directories: {
+    //     ...this.state.directories,
+    //     children: [
+    //       ...this.state.directories.children,
+    //       {
+    //         name: "c1",
+    //         path: "/c1",
+    //         links: [],
+    //         children: [],
+    //       }
+    //     ]
+    //   }
+    // })
+  }
 
   getSubDirs(name) {
     console.log('called name', name)
@@ -374,6 +544,7 @@ class App extends React.Component{
           name = {this.state.directories.name}
           path = {this.state.directories.path}
           links = {this.state.directories.links}
+          parent = {""}
           children = {this.state.directories.children}
           getSubDirs = {this.getSubDirs}
 
