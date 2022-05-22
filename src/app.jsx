@@ -3,7 +3,6 @@ import * as ReactDOM from 'react-dom';
 import Category from './components/category.jsx';
 import FolderTree from './components/folderTree.jsx';
 import ReverseEntry from './components/reverseEntry.jsx'
-import FolderTree from './components/folderTree.jsx';
 
 
 const { ipcRenderer } = require('electron');
@@ -460,29 +459,6 @@ class App extends React.Component{
     //     ]
     //   }
     // })
-  }
-
-  getSubDirs(name) {
-    console.log('called name', name)
-    // var dirs = ipcRenderer.sendSync('getSubDirs', dir)
-    // console.log('dirs:', dirs)
-
-    let dirState = this.state.directories
-
-    this.setState({
-      directories: {
-        ...this.state.directories,
-        children: [
-          ...this.state.directories.children,
-          {
-            name: "c1",
-            path: "/c1",
-            links: [],
-            children: [],
-          }
-        ]
-      }
-    })
   }
 
   render() {
