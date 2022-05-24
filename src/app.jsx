@@ -523,7 +523,6 @@ class App extends React.Component{
           parent = {""}
           children = {this.state.directories.children}
           getSubDirs = {this.getSubDirs}
-          traversed = {false}
         />
     </div>
    );

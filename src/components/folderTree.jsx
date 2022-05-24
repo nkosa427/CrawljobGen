@@ -3,6 +3,7 @@ import React, { useState } from "react";
 const FolderTree = (props) => {
 
   const [expanded, setExpanded] = useState(false)
+  const [traversed, setTraversed] = useState(false)
 
   const passParents = (path) => {
     // console.log("path:", props.path, "arg:", name)
@@ -12,8 +13,11 @@ const FolderTree = (props) => {
   }
 
   const handleExpand = (path) => {
+    if (!traversed) {
+      passParents(path);
+      setTraversed(true)
+    }
     setExpanded(!expanded)
-    passParents(path);
   }
 
   const childPaths = (
@@ -27,7 +31,6 @@ const FolderTree = (props) => {
           parent = {props.name}
           children = {child.children}
           getSubDirs = {passParents}
-          traversed = {false}
         />
       )
     })
