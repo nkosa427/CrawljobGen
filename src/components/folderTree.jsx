@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 
 const FolderTree = (props) => {
 
+  const [expanded, setExpanded] = useState(false)
 
   const passParents = (path) => {
     // console.log("path:", props.path, "arg:", name)
@@ -11,6 +12,7 @@ const FolderTree = (props) => {
   }
 
   const handleExpand = (path) => {
+    setExpanded(!expanded)
     passParents(path);
   }
 
@@ -22,10 +24,10 @@ const FolderTree = (props) => {
           name = {child.name}
           path = {child.path}
           links = {child.links}
-
           parent = {props.name}
           children = {child.children}
           getSubDirs = {passParents}
+          traversed = {false}
         />
       )
     })
@@ -33,9 +35,11 @@ const FolderTree = (props) => {
 
   return (
     <div>
-        <h4 onClick={() => handleExpand(props.path)}>{props.name}</h4>
-        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 15 }}>
-          {childPaths}
+        <div>
+          <h4>{props.name} <button onClick={() => handleExpand(props.path)}>{expanded ? '-' : '+'}</button> </h4>
+        </div>
+        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
+          {expanded && childPaths}
         </div>
     </div>
     
