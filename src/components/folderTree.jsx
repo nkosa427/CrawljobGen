@@ -5,7 +5,7 @@ const FolderTree = (props) => {
   const [showLinkEntry, setShowLinkEntry] = useState(false)
   const [linkText, setLinkText] = useState("")
 
-  const passParents = (path) => {
+  const passPath = (path) => {
     props.getSubDirs(path)
   }
 
@@ -19,28 +19,29 @@ const FolderTree = (props) => {
     if (expanded) {
       setCollapsed(path)
     } else {
-      passParents(path)
+      passPath(path)
     }
   }
 
-  const handleAddLink = () => {
-    setShowLinkEntry(true)
+  const handleAddLink = (link, path) => {
+    props.addLink(link, path)
   }
 
   const handleKey = (e) => {
     if (e.key === 'Enter' && e.target.value != '') {
       console.log("Enter pressed")
-      // setLinkText(e.target.value)
-      // this.props.onKey(str);
+      handleAddLink(e.target.value, props.path)
     }
   }
 
   const addLinkBtn = (
     showLinkEntry 
-      ? <button onClick={() => setShowLinkEntry(false)}>Hide Links</button>
-      : props.links.length !== 0 
-        ? <button onClick={() => setShowLinkEntry(true)}>Show Links</button>
-        : <button onClick={() => handleAddLink()}>Add Link</button>
+      ? <button onClick={() => setShowLinkEntry(false)}>
+          Hide Links
+        </button>
+      : <button onClick={() => setShowLinkEntry(true)}>
+          {props.links.length !== 0 ? "Show Links" : "Add Link"}
+        </button>
   )
 
   const linkEntry = (
@@ -52,20 +53,17 @@ const FolderTree = (props) => {
     />
   )
 
-  // const linkSection = (
-  //   // props.links.map((link, index) => {
-  //   //   return (
-  //   //     <div>
-  //   //       <input
-  //   //         value={test}
-  //   //       />
-  //   //       <p>{link}</p>
-  //   //     </div>
-  //   //   )
-  //   // })
+  const linkSection = (
+    props.links.map((link, index) => {
+      return (
+        <div>
+          <p>{link}</p>
+        </div>
+      )
+    })
     
           
-  // )
+  )
 
   const childPaths = (
     props.children.map((child, index) => {
@@ -77,9 +75,10 @@ const FolderTree = (props) => {
           links = {child.links}
           parent = {props.name}
           children = {child.children}
-          getSubDirs = {passParents}
+          getSubDirs = {passPath}
           expanded = {child.expanded}
           setCollapsed = {setCollapsed}
+          addLink = {handleAddLink}
         />
       )
     })
@@ -96,6 +95,7 @@ const FolderTree = (props) => {
             {addLinkBtn}
           </h4>
           {showLinkEntry && linkEntry}
+          {props.links.length !== 0 && linkSection}
         </div>
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
           {props.expanded && childPaths}
