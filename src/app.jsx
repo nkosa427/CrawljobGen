@@ -47,6 +47,7 @@ class App extends React.Component{
       numLinks: 0,
       basePath: '',
       topDir: '',
+      cjPath: '',
       directories: {
         name: "",
         path: "",
@@ -64,6 +65,7 @@ class App extends React.Component{
     if (dir !== null) {
       this.setState({
         topDir: dir.topDir,
+        cjPath: dir.cjPath,
         slashType: slashType,
         directories: {
           name: dir.topDir,
@@ -284,7 +286,7 @@ class App extends React.Component{
 
     console.log("links:", allLinks)
 
-    ipcRenderer.send('generateCrawljob', this.state.directories, this.state.slashType)
+    ipcRenderer.send('generateCrawljob', allLinks, this.state.cjPath, this.state.slashType)
     // ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
   }
 
@@ -442,6 +444,8 @@ class App extends React.Component{
       <div>
         <div>
           <label>Top level directory: {this.state.topDir}</label>
+          <br />
+          <label>Crawljob default path: {this.state.cjPath}</label>
         </div>
 
         <h3>Number of links: {this.state.numLinks}</h3>
