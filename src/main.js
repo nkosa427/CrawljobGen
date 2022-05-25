@@ -179,6 +179,10 @@ ipcMain.on('printFile', (event, folders, convert, prefix) => {
   });
 });
 
+ipcMain.on('generateCrawljob', (event, directories, slashType) => {
+  console.log('gen')
+})
+
 async function getDirectories(dir) {
   fs.access(dir, (err) => {
     if (err) {
