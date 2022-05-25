@@ -55,6 +55,10 @@ const FolderTree = (props) => {
     />
   )
 
+  const handleDelete = (link, path) => {
+    props.handleDelete(link, path)
+  }
+
   const childPaths = (
     props.children.map((child, index) => {
       return (
@@ -69,6 +73,7 @@ const FolderTree = (props) => {
           expanded = {child.expanded}
           setCollapsed = {setCollapsed}
           addLink = {handleAddLink}
+          handleDelete = {handleDelete}
         />
       )
     })
@@ -88,6 +93,8 @@ const FolderTree = (props) => {
         {props.links.length !== 0 && showLinkEntry && 
           <LinkSection 
             links = {props.links}
+            path = {props.path}
+            handleDelete = {handleDelete}
           />
         }
       </div>

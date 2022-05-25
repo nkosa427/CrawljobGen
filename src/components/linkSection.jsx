@@ -2,6 +2,14 @@ import React from "react";
 
 const LinkSection = (props) => {
 
+  const handleEdit = (link) => {
+
+  }
+
+  const handleDelete = (link, path) => {
+    props.handleDelete(link, path)
+  }
+
   const linkSection = (
     props.links.map((link, index) => {
       return (
@@ -12,7 +20,7 @@ const LinkSection = (props) => {
             disabled={true}
           />
           <button>Edit</button>
-          <button>Remove</button>
+          <button onClick={() => handleDelete(link, props.path)}>Remove</button>
         </div>
       )
     })
