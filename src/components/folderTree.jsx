@@ -6,7 +6,7 @@ const FolderTree = (props) => {
 
   const passParents = (path) => {
     // console.log("path:", props.path, "arg:", name)
-    console.log("FT path:", path,)
+    // console.log("FT path:", path)
     // arr.push(props.name)
     props.getSubDirs(path)
   }

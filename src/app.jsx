@@ -274,10 +274,8 @@ class App extends React.Component{
 
       dirs.forEach((dir) => {
         let check = obj.children.some((child) => {
-          // console.log("nm:", child.name, "dr:", dir)
           return child.name == dir
         })
-        // console.log("check:", check)
 
         if (!check) {
           obj.children.push({
@@ -290,7 +288,7 @@ class App extends React.Component{
       })
 
       obj.expanded = true
-      console.log("obj:", obj)
+      // console.log("obj:", obj)
     }
 
     let update = (path) => obj => {
@@ -321,7 +319,6 @@ class App extends React.Component{
   setCollapsed(path) {
     let update = (path) => obj => {
       if (obj.path === path) {
-        console.log("fnd:", obj)
         obj.expanded = false
       } else if (obj.children) {
         return obj.children.some(update(path))
@@ -339,7 +336,7 @@ class App extends React.Component{
     this.setState({
       directories: stateCpy
     })
-    console.log("collapsed state:", this.state.directories)
+    // console.log("collapsed state:", this.state.directories)
   }
 
   render() {
