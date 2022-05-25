@@ -1,13 +1,12 @@
 import React, { useState } from "react";
+import LinkSection from "./linkSection.jsx";
 
 const FolderTree = (props) => {
 
-  // const [expanded, setExpanded] = useState(false)
+  const [showLinkEntry, setShowLinkEntry] = useState(false)
+  const [linkText, setLinkText] = useState("")
 
-  const passParents = (path) => {
-    // console.log("path:", props.path, "arg:", name)
-    // console.log("FT path:", path)
-    // arr.push(props.name)
+  const passPath = (path) => {
     props.getSubDirs(path)
   }
 
@@ -21,8 +20,43 @@ const FolderTree = (props) => {
     if (expanded) {
       setCollapsed(path)
     } else {
-      passParents(path)
+      passPath(path)
     }
+  }
+
+  const handleAddLink = (link, path) => {
+    props.addLink(link, path)
+  }
+
+  const handleKey = (e) => {
+    if (e.key === 'Enter' && e.target.value != '') {
+      console.log("Enter pressed")
+      handleAddLink(e.target.value, props.path)
+      setLinkText("")
+    }
+  }
+
+  const addLinkBtn = (
+    showLinkEntry 
+      ? <button onClick={() => setShowLinkEntry(false)}>
+          Hide Links
+        </button>
+      : <button onClick={() => setShowLinkEntry(true)}>
+          {props.links.length !== 0 ? "Show Links" : "Add"}
+        </button>
+  )
+
+  const linkEntry = (
+    <input 
+      className='linkInput'
+      value={linkText}
+      onKeyDown={handleKey}
+      onChange={e => {setLinkText(e.target.value)}}
+    />
+  )
+
+  const handleDelete = (link, path) => {
+    props.handleDelete(link, path)
   }
 
   const childPaths = (
@@ -35,9 +69,11 @@ const FolderTree = (props) => {
           links = {child.links}
           parent = {props.name}
           children = {child.children}
-          getSubDirs = {passParents}
+          getSubDirs = {passPath}
           expanded = {child.expanded}
           setCollapsed = {setCollapsed}
+          addLink = {handleAddLink}
+          handleDelete = {handleDelete}
         />
       )
     })
@@ -45,12 +81,26 @@ const FolderTree = (props) => {
 
   return (
     <div>
-        <div>
-          <h4>{props.name} <button onClick={() => handleExpand(props.path, props.expanded)}>{props.expanded ? '-' : '+'}</button> </h4>
-        </div>
-        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
-          {props.expanded && childPaths}
-        </div>
+      <div>
+        <h4>
+          <button onClick={() => handleExpand(props.path, props.expanded)}>
+            {props.expanded ? '-' : '+'}
+          </button> 
+          {props.name} 
+          {addLinkBtn}
+        </h4>
+        {showLinkEntry && linkEntry}
+        {props.links.length !== 0 && showLinkEntry && 
+          <LinkSection 
+            links = {props.links}
+            path = {props.path}
+            handleDelete = {handleDelete}
+          />
+        }
+      </div>
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
+        {props.expanded && childPaths}
+      </div>
     </div>
     
   )

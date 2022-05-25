@@ -26,6 +26,8 @@ class App extends React.Component{
     this.removeBasePath = this.removeBasePath.bind(this);
     this.getSubDirs = this.getSubDirs.bind(this);
     this.setCollapsed = this.setCollapsed.bind(this);
+    this.addLink = this.addLink.bind(this);
+    this.handleDelete = this.handleDelete.bind(this);
 
     this.state = {
       categories: [{
@@ -339,6 +341,61 @@ class App extends React.Component{
     // console.log("collapsed state:", this.state.directories)
   }
 
+  addLink(link, path) {
+    console.log("Add", link, "to", path)
+
+    let update = (link, path) => obj => {
+      if (obj.path === path) {
+        obj.links.push(link)
+      } else if (obj.children) {
+        return obj.children.some(update(link, path))
+      }
+    }
+
+    let stateCpy = this.state.directories
+    
+    if (stateCpy.path === path) {
+      stateCpy.links.push(link)
+    } else {
+      stateCpy.children.forEach(update(link, path))
+    }
+
+    this.setState({
+      directories: stateCpy
+    })
+  }
+
+  handleDelete(link, path) {
+    console.log("Delete", link, "from", path)
+
+    let delLink = (obj, link) => {
+      let idx = obj.links.indexOf(link)
+      if (idx !== -1) {
+        obj.links.splice(idx, 1)
+      }
+    }
+
+    let update = (link, path) => obj => {
+      if (obj.path === path) {
+       delLink(obj, link)
+      } else if (obj.children) {
+        return obj.children.some(update(link, path))
+      }
+    }
+
+    let stateCpy = this.state.directories
+    
+    if (stateCpy.path === path) {
+      delLink(stateCpy, link)
+    } else {
+      stateCpy.children.forEach(update(link, path))
+    }
+
+    this.setState({
+      directories: stateCpy
+    })
+  }
+
   render() {
     return(
       <div>
@@ -403,6 +460,8 @@ class App extends React.Component{
           getSubDirs = {this.getSubDirs}
           expanded = {this.state.directories.expanded}
           setCollapsed = {this.setCollapsed}
+          addLink = {this.addLink}
+          handleDelete = {this.handleDelete}
         />
     </div>
    );
