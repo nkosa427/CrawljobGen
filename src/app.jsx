@@ -347,7 +347,7 @@ class App extends React.Component{
       if (obj.path === path) {
         obj.links.push(link)
       } else if (obj.children) {
-        return obj.children.some(update(path))
+        return obj.children.some(update(link, path))
       }
     }
 

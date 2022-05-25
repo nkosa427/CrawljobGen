@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import LinkSection from "./linkSection.jsx";
 
 const FolderTree = (props) => {
 
@@ -47,21 +48,11 @@ const FolderTree = (props) => {
 
   const linkEntry = (
     <input 
-      // className='linkInput'
+      className='linkInput'
       value={linkText}
       onKeyDown={handleKey}
       onChange={e => {setLinkText(e.target.value)}}
     />
-  )
-
-  const linkSection = (
-    props.links.map((link, index) => {
-      return (
-        <div>
-          <p key={index}>{link}</p>
-        </div>
-      )
-    })
   )
 
   const childPaths = (
@@ -94,7 +85,11 @@ const FolderTree = (props) => {
           {addLinkBtn}
         </h4>
         {showLinkEntry && linkEntry}
-        {props.links.length !== 0 && showLinkEntry && linkSection.reverse()}
+        {props.links.length !== 0 && showLinkEntry && 
+          <LinkSection 
+            links = {props.links}
+          />
+        }
       </div>
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
         {props.expanded && childPaths}
