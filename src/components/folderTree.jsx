@@ -2,12 +2,10 @@ import React, { useState } from "react";
 
 const FolderTree = (props) => {
 
-  // const [expanded, setExpanded] = useState(false)
+  const [showLinkEntry, setShowLinkEntry] = useState(false)
+  const [linkText, setLinkText] = useState("")
 
   const passParents = (path) => {
-    // console.log("path:", props.path, "arg:", name)
-    // console.log("FT path:", path)
-    // arr.push(props.name)
     props.getSubDirs(path)
   }
 
@@ -24,6 +22,50 @@ const FolderTree = (props) => {
       passParents(path)
     }
   }
+
+  const handleAddLink = () => {
+    setShowLinkEntry(true)
+  }
+
+  const handleKey = (e) => {
+    if (e.key === 'Enter' && e.target.value != '') {
+      console.log("Enter pressed")
+      // setLinkText(e.target.value)
+      // this.props.onKey(str);
+    }
+  }
+
+  const addLinkBtn = (
+    showLinkEntry 
+      ? <button onClick={() => setShowLinkEntry(false)}>Hide Links</button>
+      : props.links.length !== 0 
+        ? <button onClick={() => setShowLinkEntry(true)}>Show Links</button>
+        : <button onClick={() => handleAddLink()}>Add Link</button>
+  )
+
+  const linkEntry = (
+    <input 
+      // className='linkInput'
+      value={linkText}
+      onKeyDown={handleKey}
+      onChange={e => {setLinkText(e.target.value)}}
+    />
+  )
+
+  // const linkSection = (
+  //   // props.links.map((link, index) => {
+  //   //   return (
+  //   //     <div>
+  //   //       <input
+  //   //         value={test}
+  //   //       />
+  //   //       <p>{link}</p>
+  //   //     </div>
+  //   //   )
+  //   // })
+    
+          
+  // )
 
   const childPaths = (
     props.children.map((child, index) => {
@@ -46,7 +88,14 @@ const FolderTree = (props) => {
   return (
     <div>
         <div>
-          <h4>{props.name} <button onClick={() => handleExpand(props.path, props.expanded)}>{props.expanded ? '-' : '+'}</button> </h4>
+          <h4>
+            <button onClick={() => handleExpand(props.path, props.expanded)}>
+              {props.expanded ? '-' : '+'}
+            </button> 
+            {props.name} 
+            {addLinkBtn}
+          </h4>
+          {showLinkEntry && linkEntry}
         </div>
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
           {props.expanded && childPaths}
