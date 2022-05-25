@@ -20,6 +20,7 @@ class App extends React.Component{
     // this.convertSlashes = this.convertSlashes.bind(this);
     // this.convertSlashesChecked = this.convertSlashesChecked.bind(this);
     // this.trimPath = this.trimPath.bind(this);
+    this.searchLinks = this.searchLinks.bind(this);
     this.printFile = this.printFile.bind(this);
     // this.removeLink = this.removeLink.bind(this);
     // this.addBasePath = this.addBasePath.bind(this);
@@ -261,7 +262,28 @@ class App extends React.Component{
   //   })
   // }
 
+  searchLinks(dirs, allLinks) {
+    if (dirs.links.length > 0) {
+      allLinks.push({
+        path: dirs.path,
+        links: dirs.links
+      })
+    }
+
+    dirs.children.forEach((child) => {
+      allLinks = this.searchLinks(child, allLinks)
+    })
+
+    return allLinks
+  }
+
   printFile(){
+    let allLinks = []
+    let stateCpy = this.state.directories
+    allLinks = this.searchLinks(stateCpy, allLinks)
+
+    console.log("links:", allLinks)
+
     ipcRenderer.send('generateCrawljob', this.state.directories, this.state.slashType)
     // ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
   }
@@ -348,11 +370,12 @@ class App extends React.Component{
 
       if (!check) {
         obj.links.push(link)
+        this.setState({
+          numLinks: this.state.numLinks + 1
+        })
+      } else {
+        console.log("Duplicate link")
       }
-
-      this.setState({
-        numLinks: this.state.numLinks + 1
-      })
     }
 
     let update = (link, path) => obj => {
