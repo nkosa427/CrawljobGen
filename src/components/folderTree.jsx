@@ -31,6 +31,7 @@ const FolderTree = (props) => {
     if (e.key === 'Enter' && e.target.value != '') {
       console.log("Enter pressed")
       handleAddLink(e.target.value, props.path)
+      setLinkText("")
     }
   }
 
@@ -40,7 +41,7 @@ const FolderTree = (props) => {
           Hide Links
         </button>
       : <button onClick={() => setShowLinkEntry(true)}>
-          {props.links.length !== 0 ? "Show Links" : "Add Link"}
+          {props.links.length !== 0 ? "Show Links" : "Add"}
         </button>
   )
 
@@ -57,12 +58,10 @@ const FolderTree = (props) => {
     props.links.map((link, index) => {
       return (
         <div>
-          <p>{link}</p>
+          <p key={index}>{link}</p>
         </div>
       )
     })
-    
-          
   )
 
   const childPaths = (
@@ -86,20 +85,20 @@ const FolderTree = (props) => {
 
   return (
     <div>
-        <div>
-          <h4>
-            <button onClick={() => handleExpand(props.path, props.expanded)}>
-              {props.expanded ? '-' : '+'}
-            </button> 
-            {props.name} 
-            {addLinkBtn}
-          </h4>
-          {showLinkEntry && linkEntry}
-          {props.links.length !== 0 && linkSection}
-        </div>
-        <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
-          {props.expanded && childPaths}
-        </div>
+      <div>
+        <h4>
+          <button onClick={() => handleExpand(props.path, props.expanded)}>
+            {props.expanded ? '-' : '+'}
+          </button> 
+          {props.name} 
+          {addLinkBtn}
+        </h4>
+        {showLinkEntry && linkEntry}
+        {props.links.length !== 0 && showLinkEntry && linkSection.reverse()}
+      </div>
+      <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
+        {props.expanded && childPaths}
+      </div>
     </div>
     
   )

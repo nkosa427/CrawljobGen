@@ -342,6 +342,26 @@ class App extends React.Component{
 
   addLink(link, path) {
     console.log("Add", link, "to", path)
+
+    let update = (link, path) => obj => {
+      if (obj.path === path) {
+        obj.links.push(link)
+      } else if (obj.children) {
+        return obj.children.some(update(path))
+      }
+    }
+
+    let stateCpy = this.state.directories
+    
+    if (stateCpy.path === path) {
+      stateCpy.links.push(link)
+    } else {
+      stateCpy.children.forEach(update(link, path))
+    }
+
+    this.setState({
+      directories: stateCpy
+    })
   }
 
   render() {
