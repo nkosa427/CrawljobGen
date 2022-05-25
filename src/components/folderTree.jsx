@@ -2,18 +2,27 @@ import React, { useState } from "react";
 
 const FolderTree = (props) => {
 
-  const [expanded, setExpanded] = useState(false)
+  // const [expanded, setExpanded] = useState(false)
 
   const passParents = (path) => {
     // console.log("path:", props.path, "arg:", name)
-    console.log("FT path:", path,)
+    // console.log("FT path:", path)
     // arr.push(props.name)
     props.getSubDirs(path)
   }
 
-  const handleExpand = (path) => {
-    setExpanded(!expanded)
-    passParents(path);
+  const setCollapsed = (path) => {
+    console.log("Setting collapsed:", path)
+    props.setCollapsed(path)
+  }
+
+  const handleExpand = (path, expanded) => {
+    console.log("expanded:", expanded)
+    if (expanded) {
+      setCollapsed(path)
+    } else {
+      passParents(path)
+    }
   }
 
   const childPaths = (
@@ -27,7 +36,8 @@ const FolderTree = (props) => {
           parent = {props.name}
           children = {child.children}
           getSubDirs = {passParents}
-          traversed = {false}
+          expanded = {child.expanded}
+          setCollapsed = {setCollapsed}
         />
       )
     })
@@ -36,10 +46,10 @@ const FolderTree = (props) => {
   return (
     <div>
         <div>
-          <h4>{props.name} <button onClick={() => handleExpand(props.path)}>{expanded ? '-' : '+'}</button> </h4>
+          <h4>{props.name} <button onClick={() => handleExpand(props.path, props.expanded)}>{props.expanded ? '-' : '+'}</button> </h4>
         </div>
         <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
-          {expanded && childPaths}
+          {props.expanded && childPaths}
         </div>
     </div>
     
