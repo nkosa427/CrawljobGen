@@ -25,8 +25,7 @@ class App extends React.Component{
     this.addBasePath = this.addBasePath.bind(this);
     this.removeBasePath = this.removeBasePath.bind(this);
     this.getSubDirs = this.getSubDirs.bind(this);
-    // this.folderSearch = this.folderSearch.bind(this);
-    this.updateDirs = this.updateDirs.bind(this);
+    this.setCollapsed = this.setCollapsed.bind(this);
 
     this.state = {
       categories: [{
@@ -48,6 +47,7 @@ class App extends React.Component{
       directories: {
         name: "",
         path: "",
+        expanded: false,
         links: [],
         children: []
       }
@@ -65,53 +65,10 @@ class App extends React.Component{
         directories: {
           name: dir.topDir,
           path: dir.topDir,
+          expanded: false,
           links: [],
           children: []
         }
-        // directories: {
-        //   name: "/",
-        //   path: "/",
-        //   links: [],
-        //   children: [
-        //     {
-        //       name: "a1",
-        //       path: "/a1",
-        //       links: [],
-        //       children: [
-        //         {
-        //           name: "a1b1",
-        //           path: "/a1/b1",
-        //           links: [],
-        //           children: []
-        //         }
-        //      ]
-        //     }, 
-        //     {
-        //       name: "b1",
-        //       path: "/b1",
-        //       links: [],
-        //       children: [
-        //         {
-        //           name: "b1a1",
-        //           path: "/b1/a1",
-        //           links: [],
-        //           children: [{
-        //             name: "b1a1a1",
-        //             path: "/b1/a1/a1",
-        //             links: [],
-        //             children: []
-        //           }]
-        //         }, 
-        //         {
-        //           name: "b1a2",
-        //           path: "/b1/a2",
-        //           links: [],
-        //           children: []
-        //         }
-        //       ]
-        //     }
-        //   ]
-        // }
       })
     }
 
@@ -310,155 +267,71 @@ class App extends React.Component{
     console.log('find', value)
   }
 
-  // async folderSearch(arr, obj) {
-  //   console.log("call foldersearch for arr:", arr, "obj:", obj)
-  //   // if (arr.length == 0) {
-  //   //   console.log("none")
-  //   // }
+  getSubDirs(path) {
+    let dirSearch = (obj) => {
+      console.log("searching for dirs in", obj.path)
+      var dirs = ipcRenderer.sendSync('getSubDirs', obj.path)
 
-  //   obj.children.forEach(async (subDir, index) => {
-  //     if (subDir.name == arr[0]) {
-  //       console.log("match!:", subDir.path, "with", arr[0])
-  //       arr.shift()
-  //       let tmp = await this.folderSearch(arr, subDir)
-  //       console.log("tmp:", tmp)
-  //       obj.children[index] = tmp
-  //       // console.log("obj ret:", obj.children[index])
+      dirs.forEach((dir) => {
+        obj.children.push({
+          name: dir,
+          path: obj.path + this.state.slashType + dir,
+          links: [],
+          children: []
+        })
+      })
 
-  //       if (obj.name == this.state.topDir) {
-  //         console.log("dopdir,", obj)
-  //         this.setState({
-  //           directories: obj
-  //         })
-  //       } else {
-  //         console.log("nottop", tmp, "obj ret:", obj.children[index])
-  //         return obj
-  //       }
-  //       // return obj
-  //     }
-  //   })
+      obj.expanded = true
+      console.log("obj:", obj)
+    }
 
-  //   if (obj.children.length == 0) {
-  //     console.log("searching for dirs in", obj.path)
-  //     var dirs = ipcRenderer.sendSync('getSubDirs', obj.path)
-  //     dirs.forEach((dir) => {
-  //       obj.children.push({
-  //         name: dir,
-  //         path: obj.path + this.state.slashType + dir,
-  //         links: [],
-  //         children: []
-  //       })
-  //     })
-
-  //     console.log("new obj:", obj)
-
-  //     if (obj.name == this.state.topDir) {
-  //         console.log("dopdir 0,", obj)
-  //         this.setState({
-  //           directories: obj
-  //         })
-  //       } else {
-  //         return obj
-  //       }
-  //   }
-
-  //   // console.log("arr:", arr)
-  // }
-
-  updateDirs(path) {
     let update = (path) => obj => {
       if (obj.path === path) {
-        console.log("searching for dirs in", obj.path)
-        var dirs = ipcRenderer.sendSync('getSubDirs', obj.path)
-        dirs.forEach((dir) => {
-          obj.children.push({
-            name: dir,
-            path: obj.path + this.state.slashType + dir,
-            links: [],
-            children: []
-          })
-        })
-        console.log("obj:", obj)
+        dirSearch(obj)
       } else if (obj.children) {
         return obj.children.some(update(path))
       }
     }
 
     let stateCpy = this.state.directories
+    stateCpy.children.forEach(update(path))
 
-    if (stateCpy.children.length == 0) {
-      console.log("searching for dirs in", stateCpy.path)
-      var dirs = ipcRenderer.sendSync('getSubDirs', stateCpy.path)
-      dirs.forEach((dir) => {
-        stateCpy.children.push({
-          name: dir,
-          path: stateCpy.path + this.state.slashType + dir,
-          links: [],
-          children: []
-        })
-      })
+    if (stateCpy.children.length == 0 || stateCpy.path === path) {
+      dirSearch(stateCpy)
       this.setState({
         directories: stateCpy
       })
     }
-    
-    stateCpy.children.forEach(update(path))
 
-    return stateCpy
-  }
-
-  getSubDirs(path) {
-    // let obj = this.findNestedObject(this.state.directories, "path", name)
-    let arr = path.replace(this.state.topDir, "").split(this.state.slashType)
-    if (arr[0] == "") {
-      arr.shift()
-    }
-
-    // let stateCpy = this.state.directories
-    let stateCpy = this.updateDirs(path)
-
-    // let dirState = this.folderSearch(arr, stateCpy)
     console.log("new state:", stateCpy)
 
     this.setState({
       directories: stateCpy
     })
+  }
+
+  setCollapsed(path) {
+    let update = (path) => obj => {
+      if (obj.path === path) {
+        console.log("fnd:", obj)
+        obj.expanded = false
+      } else if (obj.children) {
+        return obj.children.some(update(path))
+      }
+    }
+
+    let stateCpy = this.state.directories
     
-    // console.log("obj:", path.replace(this.state.topDir, ""))
-    
-    // let path = dir.reverse().join(this.state.slashType)
+    if (path == this.state.directories.path) {
+      stateCpy.expanded = false
+    } else {
+      stateCpy.children.forEach(update(path))
+    }
 
-    // console.log('called name', path)
-    // var dirs = ipcRenderer.sendSync('getSubDirs', path)
-    // console.log('dirs:', dirs)
-
-    // let dirState = this.state.directories
-
-    // dirs.forEach((dir) => {
-    //   dirState.children.push({
-    //     name: dir,
-    //     path: path + this.state.slashType + dir,
-    //     links: [],
-    //     children: []
-    //   })
-    // })
-
-
-    //////////////////////////////////////////////////////////
-    // this.setState({
-    //   directories: {
-    //     ...this.state.directories,
-    //     children: [
-    //       ...this.state.directories.children,
-    //       {
-    //         name: "c1",
-    //         path: "/c1",
-    //         links: [],
-    //         children: [],
-    //       }
-    //     ]
-    //   }
-    // })
+    this.setState({
+      directories: stateCpy
+    })
+    console.log("collapsed state:", this.state.directories)
   }
 
   render() {
@@ -523,6 +396,8 @@ class App extends React.Component{
           parent = {""}
           children = {this.state.directories.children}
           getSubDirs = {this.getSubDirs}
+          expanded = {this.state.directories.expanded}
+          setCollapsed = {this.setCollapsed}
         />
     </div>
    );
