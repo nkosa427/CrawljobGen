@@ -273,12 +273,20 @@ class App extends React.Component{
       var dirs = ipcRenderer.sendSync('getSubDirs', obj.path)
 
       dirs.forEach((dir) => {
-        obj.children.push({
-          name: dir,
-          path: obj.path + this.state.slashType + dir,
-          links: [],
-          children: []
+        let check = obj.children.some((child) => {
+          // console.log("nm:", child.name, "dr:", dir)
+          return child.name == dir
         })
+        // console.log("check:", check)
+
+        if (!check) {
+          obj.children.push({
+            name: dir,
+            path: obj.path + this.state.slashType + dir,
+            links: [],
+            children: []
+          })
+        }
       })
 
       obj.expanded = true
