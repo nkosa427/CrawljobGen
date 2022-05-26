@@ -51,10 +51,10 @@ const FolderTree = forwardRef((props, ref) => {
   const addLinkBtn = (
     showLinkEntry 
       ? <button onClick={() => setShowLinkEntry(false)}>
-          Hide Links
+          Hide
         </button>
       : <button onClick={() => setShowLinkEntry(true)}>
-          {props.links.length !== 0 ? "Show Links" : "Add"}
+          {props.links.length !== 0 ? "Show" : "Add Links"}
         </button>
   )
 
