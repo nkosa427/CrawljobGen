@@ -31,6 +31,7 @@ class App extends React.Component{
     this.addLink = this.addLink.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.clearLinks = this.clearLinks.bind(this);
+    this.handleAddDirectory =this.handleAddDirectory.bind(this);
 
     this.state = {
       categories: [{
@@ -473,6 +474,10 @@ class App extends React.Component{
     }
   }
 
+  handleAddDirectory(dir, path) {
+    console.log("Add", dir, "to", path)
+  }
+
   render() {
     return(
       <div>
@@ -543,6 +548,7 @@ class App extends React.Component{
           addLink = {this.addLink}
           handleDelete = {this.handleDelete}
           ref = {this.child}
+          handleAddDirectory = {this.handleAddDirectory}
         />
     </div>
    );

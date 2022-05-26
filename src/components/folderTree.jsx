@@ -6,6 +6,7 @@ const FolderTree = forwardRef((props, ref) => {
   const [showLinkEntry, setShowLinkEntry] = useState(false)
   const [linkText, setLinkText] = useState("")
   const [showAddFolder, setShowAddFolder] = useState(false)
+  const [folderText, setFolderText] = useState("")
   const [isHovering, setIsHovering] = useState(false);
 
   const childRef = useRef()
@@ -42,7 +43,7 @@ const FolderTree = forwardRef((props, ref) => {
     props.addLink(link, path)
   }
 
-  const handleKey = (e) => {
+  const handleKeyLink = (e) => {
     if (e.key === 'Enter' && e.target.value != '') {
       console.log("Enter pressed")
       handleAddLink(e.target.value, props.path)
@@ -73,7 +74,7 @@ const FolderTree = forwardRef((props, ref) => {
     <input 
       className='linkInput'
       value={linkText}
-      onKeyDown={handleKey}
+      onKeyDown={handleKeyLink}
       onChange={e => {setLinkText(e.target.value)}}
     />
   )
@@ -83,8 +84,36 @@ const FolderTree = forwardRef((props, ref) => {
   }
 
   const handleAddDirectory = (path) => {
-    console.log("Add dir to", path)
+    setShowAddFolder(true)
+    props.handleAddDirectory(path)
   }
+
+  const addFolder = (dir) => {
+    if ( dir !== undefined && dir != '') {
+      props.handleAddDirectory(dir, props.path)
+    }
+    setFolderText("")
+    setShowAddFolder(false)
+  }
+
+  const handleKeyFolder = (e) => {
+    if (e.key === 'Enter') {
+      console.log("Enter pressed")
+      addFolder(e.target.value)
+    }
+  }
+
+  const addFolderInput = (
+    <div>
+      <input 
+        className='linkInput'
+        value={folderText}
+        onKeyDown={handleKeyFolder}
+        onChange={e => {setFolderText(e.target.value)}}
+      />
+      <button onClick={() => addFolder(folderText)}>Add Folder</button>
+    </div>
+  )
 
   const LabelSection = ({ handleMouseOver, handleMouseOut }) => {
     return(
@@ -109,7 +138,6 @@ const FolderTree = forwardRef((props, ref) => {
     setIsHovering(false);
   };
 
-
   const childPaths = (
     props.children.map((child, index) => {
       return (
@@ -126,6 +154,7 @@ const FolderTree = forwardRef((props, ref) => {
           addLink = {handleAddLink}
           handleDelete = {handleDelete}
           ref = {childRef}
+          handleAddDirectory = {handleAddDirectory}
         />
       )
     })
@@ -149,6 +178,7 @@ const FolderTree = forwardRef((props, ref) => {
           {isHovering && <button onClick={() => handleAddDirectory(props.path)}>Add Directory</button>}
         </h4>
         </div> */}
+        {showAddFolder && addFolderInput}
         {showLinkEntry && linkEntry}
         {props.links.length !== 0 && showLinkEntry && 
           <LinkSection 
