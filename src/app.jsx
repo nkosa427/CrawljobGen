@@ -297,22 +297,23 @@ class App extends React.Component{
     let dirSearch = (obj) => {
       console.log("searching for dirs in", obj.path)
       var dirs = ipcRenderer.sendSync('getSubDirs', obj.path)
-
-      dirs.forEach((dir) => {
-        let check = obj.children.some((child) => {
-          return child.name == dir
-        })
-
-        if (!check) {
-          obj.children.push({
-            name: dir,
-            path: obj.path + this.state.slashType + dir,
-            links: [],
-            children: []
+      
+      if (dirs !== null) {
+        dirs.forEach((dir) => {
+          let check = obj.children.some((child) => {
+            return child.name == dir
           })
-        }
-      })
 
+          if (!check) {
+            obj.children.push({
+              name: dir,
+              path: obj.path + this.state.slashType + dir,
+              links: [],
+              children: []
+            })
+          }
+        })
+      }
       obj.expanded = true
       // console.log("obj:", obj)
     }
@@ -476,6 +477,37 @@ class App extends React.Component{
 
   handleAddDirectory(dir, path) {
     console.log("Add", dir, "to", path)
+
+    let addDir = (obj, dir) => {
+      obj.children.push({
+        name: dir,
+        path: obj.path + this.state.slashType + dir,
+        expanded: false,
+        links: [],
+        children: []
+      })
+    }
+
+    let update = (path) => obj => {
+      if (obj.path === path) {
+        addDir(obj, dir)
+      } else if (obj.children) {
+        return obj.children.some(update(path))
+      }
+    }
+
+    let stateCpy = this.state.directories
+    
+    if (stateCpy.path === path) {
+      addDir(stateCpy, dir)
+    } else {
+      stateCpy.children.forEach(update(child, dir))
+    }
+
+    this.setState({
+      directories: stateCpy
+    })
+
   }
 
   render() {

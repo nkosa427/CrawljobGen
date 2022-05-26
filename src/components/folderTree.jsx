@@ -83,14 +83,13 @@ const FolderTree = forwardRef((props, ref) => {
     props.handleDelete(link, path)
   }
 
-  const handleAddDirectory = (path) => {
-    setShowAddFolder(true)
-    props.handleAddDirectory(path)
+  const sendNewDir = (dir, path) => {
+    props.handleAddDirectory(dir, path)
   }
 
   const addFolder = (dir) => {
     if ( dir !== undefined && dir != '') {
-      props.handleAddDirectory(dir, props.path)
+      sendNewDir(dir, props.path)
     }
     setFolderText("")
     setShowAddFolder(false)
@@ -124,7 +123,7 @@ const FolderTree = forwardRef((props, ref) => {
           </button> 
           {props.name} 
           {addLinkBtn}
-          {isHovering && <button onClick={() => handleAddDirectory(props.path)}>Add Directory</button>}
+          {isHovering && <button onClick={() => setShowAddFolder(true)}>Add Directory</button>}
         </h4>
       </div>
     )
@@ -154,7 +153,7 @@ const FolderTree = forwardRef((props, ref) => {
           addLink = {handleAddLink}
           handleDelete = {handleDelete}
           ref = {childRef}
-          handleAddDirectory = {handleAddDirectory}
+          handleAddDirectory = {sendNewDir}
         />
       )
     })
