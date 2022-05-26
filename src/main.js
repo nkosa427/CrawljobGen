@@ -179,6 +179,53 @@ ipcMain.on('printFile', (event, folders, convert, prefix) => {
   });
 });
 
+ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
+  console.log('gen', allLinks)
+  let dt = new Date();
+  let month = dt.getMonth()+1
+  let path = month + "-" + dt.getDate() + "-" + dt.getFullYear() + "_" + dt.getHours() + "-" + dt.getMinutes() + "-" + dt.getSeconds()
+  // console.log("dt:", dt.getMonth()+1, "-", dt.getDate(), "-", dt.getFullYear())
+  // console.log("tm:", dt.getHours(), ":", dt.getMinutes(), ":", dt.getSeconds(), "timezone", dt.getTimezoneOffset())
+  console.log("path:", path)
+
+  let outText = ""
+  allLinks.forEach((link) => {
+    link.links.forEach((txt) => {
+      outText += "text=" + txt + "\n";
+      outText += "downloadFolder=" + link.path + "\n\n";
+    })
+  })
+
+  console.log("outtext:", outText)
+
+  dialog.showSaveDialog({
+    title: 'Select File Location',
+    defaultPath: (cjPath + slashType + path),
+    buttonLabel: 'Save',
+    filters: [{
+      name: 'crawljob file',
+      extensions: ['crawljob']
+    }]
+  }).then(file => {
+    if (!file.canceled && allLinks.length > 0 && allLinks[0].path != '') {
+      console.log(file.filePath.toString());
+
+      fs.writeFile(
+        file.filePath.toString(), 
+        outText, 
+        (err) => {if (err) throw err;}
+      );
+
+      console.log("Finished writing");
+    } else {
+      console.log("Not writing");
+    }
+    
+  }).catch(err =>{
+    console.log(err)
+  });
+})
+
 async function getDirectories(dir) {
   fs.access(dir, (err) => {
     if (err) {
