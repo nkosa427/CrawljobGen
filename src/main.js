@@ -188,6 +188,16 @@ ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
   // console.log("tm:", dt.getHours(), ":", dt.getMinutes(), ":", dt.getSeconds(), "timezone", dt.getTimezoneOffset())
   console.log("path:", path)
 
+  let outText = ""
+  allLinks.forEach((link) => {
+    link.links.forEach((txt) => {
+      outText += "text=" + txt + "\n";
+      outText += "downloadFolder=" + link.path + "\n\n";
+    })
+  })
+
+  console.log("outtext:", outText)
+
   dialog.showSaveDialog({
     title: 'Select File Location',
     defaultPath: (cjPath + slashType + path),
@@ -197,7 +207,7 @@ ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
       extensions: ['crawljob']
     }]
   }).then(file => {
-    if (!file.canceled && folders.length > 0 && folders[0].path != '') {
+    if (!file.canceled && allLinks.length > 0 && allLinks[0].path != '') {
       console.log(file.filePath.toString());
 
       fs.writeFile(
