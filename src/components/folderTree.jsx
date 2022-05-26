@@ -6,6 +6,7 @@ const FolderTree = forwardRef((props, ref) => {
   const [showLinkEntry, setShowLinkEntry] = useState(false)
   const [linkText, setLinkText] = useState("")
   const [showAddFolder, setShowAddFolder] = useState(false)
+  const [isHovering, setIsHovering] = useState(false);
 
   const childRef = useRef()
 
@@ -50,11 +51,20 @@ const FolderTree = forwardRef((props, ref) => {
   }
 
   const addLinkBtn = (
-    showLinkEntry 
+    props.links.length !== 0
+    ? showLinkEntry
       ? <button onClick={() => setShowLinkEntry(false)}>
           Hide
         </button>
       : <button onClick={() => setShowLinkEntry(true)}>
+          Show
+        </button>
+    : showLinkEntry 
+      ? <button onClick={() => setShowLinkEntry(false)}>
+          Hide
+        </button>
+      : isHovering && 
+        <button onClick={() => setShowLinkEntry(true)}>
           {props.links.length !== 0 ? "Show" : "Add Links"}
         </button>
   )
@@ -91,7 +101,6 @@ const FolderTree = forwardRef((props, ref) => {
     )
   }
 
-  const [isHovering, setIsHovering] = useState(false);
   const handleMouseOver = () => {
     setIsHovering(true);
   };
