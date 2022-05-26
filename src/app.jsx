@@ -9,6 +9,7 @@ const { ipcRenderer } = require('electron');
 class App extends React.Component{
   constructor(props){
     super(props);
+    this.child = React.createRef();
     
     // this.handleTopDirChange = this.handleTopDirChange.bind(this);
     // this.addNewCategory = this.addNewCategory.bind(this);
@@ -29,6 +30,7 @@ class App extends React.Component{
     this.setCollapsed = this.setCollapsed.bind(this);
     this.addLink = this.addLink.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
+    this.clearLinks = this.clearLinks.bind(this);
 
     this.state = {
       categories: [{
@@ -439,6 +441,38 @@ class App extends React.Component{
     })
   }
 
+  clearLinks() {
+    let choice = ipcRenderer.sendSync('clearLinks')
+    console.log("choice:", choice ? 'dont' : 'clear')
+
+    let delLinks = (obj) => {
+      obj.links = []
+    }
+
+    let update = (path) => obj => {
+      console.log("obj:", obj)
+      if (obj.links.length > 0) {
+        delLinks(obj)
+      } 
+      
+      if (obj.children) {
+        return obj.children.some(update())
+      }
+    }
+
+    if (!choice) {
+      console.log("Clearing links")
+      let stateCpy = this.state.directories
+      delLinks(stateCpy)
+      stateCpy.children.forEach(update(stateCpy.path))
+      this.setState({
+        directories: stateCpy,
+        numLinks: 0
+      })
+      this.child.current.hideLinkEntries()
+    }
+  }
+
   render() {
     return(
       <div>
@@ -448,6 +482,7 @@ class App extends React.Component{
           <label>Crawljob default path: {this.state.cjPath}</label>
         </div>
 
+        <button onClick={this.clearLinks}>Clear links</button>
         <h3>Number of links: {this.state.numLinks}</h3>
         <div className='debugButtons'>
           {/* <button onClick={this.printFolders}>Print Folders</button> */}
@@ -507,6 +542,7 @@ class App extends React.Component{
           setCollapsed = {this.setCollapsed}
           addLink = {this.addLink}
           handleDelete = {this.handleDelete}
+          ref = {this.child}
         />
     </div>
    );

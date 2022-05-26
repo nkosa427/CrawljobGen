@@ -34,6 +34,8 @@ const createWindow = () => {
           type: 'question',
           buttons: ['Yes', 'No'],
           title: 'Refresh?',
+          defaultId: 1,
+          noLink: true,
           message: 'Are you sure you want to reload?'
         }
       );
@@ -198,32 +200,41 @@ ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
 
   console.log("outtext:", outText)
 
-  dialog.showSaveDialog({
-    title: 'Select File Location',
-    defaultPath: (cjPath + slashType + path),
-    buttonLabel: 'Save',
-    filters: [{
-      name: 'crawljob file',
-      extensions: ['crawljob']
-    }]
-  }).then(file => {
-    if (!file.canceled && allLinks.length > 0 && allLinks[0].path != '') {
-      console.log(file.filePath.toString());
+  if (outText === "") {
+    dialog.showMessageBox({
+      type: 'info',
+      buttons: ['Ok'],
+      title: 'No Links',
+      message: 'No links found'
+    })
+  } else {
+    dialog.showSaveDialog({
+      title: 'Select File Location',
+      defaultPath: (cjPath + slashType + path),
+      buttonLabel: 'Save',
+      filters: [{
+        name: 'crawljob file',
+        extensions: ['crawljob']
+      }]
+    }).then(file => {
+      if (!file.canceled && allLinks.length > 0 && allLinks[0].path != '') {
+        console.log(file.filePath.toString());
 
-      fs.writeFile(
-        file.filePath.toString(), 
-        outText, 
-        (err) => {if (err) throw err;}
-      );
+        fs.writeFile(
+          file.filePath.toString(), 
+          outText, 
+          (err) => {if (err) throw err;}
+        );
 
-      console.log("Finished writing");
-    } else {
-      console.log("Not writing");
-    }
-    
-  }).catch(err =>{
-    console.log(err)
-  });
+        console.log("Finished writing");
+      } else {
+        console.log("Not writing");
+      }
+      
+    }).catch(err =>{
+      console.log(err)
+    });
+  }
 })
 
 async function getDirectories(dir) {
@@ -291,4 +302,24 @@ ipcMain.on('getTopDir', (event) => {
     console.log(e)
     event.returnValue = null
   }
+})
+
+ipcMain.on('clearLinks', (event) => {
+  let choice = dialog.showMessageBoxSync(
+    {
+      type: 'question',
+      defaultId: 1,
+      noLink: true,
+      buttons: ['Yes', 'No'],
+      title: 'Clear links?',
+      message: 'Are you sure you want to clear all links?'
+    }
+  );
+
+  event.returnValue = choice
+
+  // if (!choice) {
+  //   console.log("reloading");
+  //   mainWindow.reload();
+  // }
 })

@@ -1,10 +1,22 @@
-import React, { useState } from "react";
+import React, { useState, useRef, forwardRef, useImperativeHandle } from "react";
 import LinkSection from "./linkSection.jsx";
 
-const FolderTree = (props) => {
+const FolderTree = forwardRef((props, ref) => {
 
   const [showLinkEntry, setShowLinkEntry] = useState(false)
   const [linkText, setLinkText] = useState("")
+
+  const childRef = useRef()
+
+  useImperativeHandle(ref, () => ({
+    hideLinkEntries() {
+      setShowLinkEntry(false)
+      // console.log("hideLinkEntries called in", props.path)
+      if (props.children.length > 0) {
+        childRef.current.hideLinkEntries()
+      }
+    }
+  }))
 
   const passPath = (path) => {
     props.getSubDirs(path)
@@ -74,6 +86,7 @@ const FolderTree = (props) => {
           setCollapsed = {setCollapsed}
           addLink = {handleAddLink}
           handleDelete = {handleDelete}
+          ref = {childRef}
         />
       )
     })
@@ -104,6 +117,6 @@ const FolderTree = (props) => {
     </div>
     
   )
-}
+})
 
 export default FolderTree
