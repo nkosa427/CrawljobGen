@@ -5,6 +5,7 @@ const FolderTree = forwardRef((props, ref) => {
 
   const [showLinkEntry, setShowLinkEntry] = useState(false)
   const [linkText, setLinkText] = useState("")
+  const [showAddFolder, setShowAddFolder] = useState(false)
 
   const childRef = useRef()
 
@@ -71,6 +72,35 @@ const FolderTree = forwardRef((props, ref) => {
     props.handleDelete(link, path)
   }
 
+  const handleAddDirectory = (path) => {
+    console.log("Add dir to", path)
+  }
+
+  const LabelSection = ({ handleMouseOver, handleMouseOut }) => {
+    return(
+      <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
+        <h4>
+          <button onClick={() => handleExpand(props.path, props.expanded)}>
+            {props.expanded ? '-' : '+'}
+          </button> 
+          {props.name} 
+          {addLinkBtn}
+          {isHovering && <button onClick={() => handleAddDirectory(props.path)}>Add Directory</button>}
+        </h4>
+      </div>
+    )
+  }
+
+  const [isHovering, setIsHovering] = useState(false);
+  const handleMouseOver = () => {
+    setIsHovering(true);
+  };
+
+  const handleMouseOut = () => {
+    setIsHovering(false);
+  };
+
+
   const childPaths = (
     props.children.map((child, index) => {
       return (
@@ -94,14 +124,22 @@ const FolderTree = forwardRef((props, ref) => {
 
   return (
     <div>
-      <div>
+        <LabelSection 
+          handleMouseOver={handleMouseOver}
+          handleMouseOut={handleMouseOut} 
+        />
+          
+        {/* <div  handleMouseOver={handleMouseOver}
+          handleMouseOut={handleMouseOut} >
         <h4>
           <button onClick={() => handleExpand(props.path, props.expanded)}>
             {props.expanded ? '-' : '+'}
           </button> 
           {props.name} 
           {addLinkBtn}
+          {isHovering && <button onClick={() => handleAddDirectory(props.path)}>Add Directory</button>}
         </h4>
+        </div> */}
         {showLinkEntry && linkEntry}
         {props.links.length !== 0 && showLinkEntry && 
           <LinkSection 
@@ -110,7 +148,6 @@ const FolderTree = forwardRef((props, ref) => {
             handleDelete = {handleDelete}
           />
         }
-      </div>
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
         {props.expanded && childPaths}
       </div>
