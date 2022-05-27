@@ -452,7 +452,6 @@ class App extends React.Component{
     }
 
     let update = (path) => obj => {
-      console.log("obj:", obj)
       if (obj.links.length > 0) {
         delLinks(obj)
       } 
