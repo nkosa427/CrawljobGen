@@ -476,32 +476,30 @@ class App extends React.Component{
   }
 
   handleAddDirectory(dir, path) {
-    console.log("Add", dir, "to", path)
-
-    let addDir = (obj, dir) => {
+    let addDir = (obj, details) => {
       obj.children.push({
-        name: dir,
-        path: obj.path + this.state.slashType + dir,
+        name: details.dir,
+        path: obj.path + this.state.slashType + details.dir,
         expanded: false,
         links: [],
         children: []
       })
     }
 
-    let update = (path) => obj => {
-      if (obj.path === path) {
-        addDir(obj, dir)
+    let update = (details) => obj => {
+      if (obj.path === details.path) {
+        addDir(obj, details)
       } else if (obj.children) {
-        return obj.children.some(update(path))
+        return obj.children.some(update(details))
       }
     }
 
     let stateCpy = this.state.directories
     
     if (stateCpy.path === path) {
-      addDir(stateCpy, dir)
+      addDir(stateCpy, {path: path, dir: dir})
     } else {
-      stateCpy.children.forEach(update(child, dir))
+      stateCpy.children.forEach(update({path: path, dir: dir}))
     }
 
     this.setState({
