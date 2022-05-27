@@ -5,6 +5,9 @@ const FolderTree = forwardRef((props, ref) => {
 
   const [showLinkEntry, setShowLinkEntry] = useState(false)
   const [linkText, setLinkText] = useState("")
+  const [showAddFolder, setShowAddFolder] = useState(false)
+  const [folderText, setFolderText] = useState("")
+  const [isHovering, setIsHovering] = useState(false);
 
   const childRef = useRef()
 
@@ -40,7 +43,7 @@ const FolderTree = forwardRef((props, ref) => {
     props.addLink(link, path)
   }
 
-  const handleKey = (e) => {
+  const handleKeyLink = (e) => {
     if (e.key === 'Enter' && e.target.value != '') {
       console.log("Enter pressed")
       handleAddLink(e.target.value, props.path)
@@ -49,11 +52,20 @@ const FolderTree = forwardRef((props, ref) => {
   }
 
   const addLinkBtn = (
-    showLinkEntry 
+    props.links.length !== 0
+    ? showLinkEntry
       ? <button onClick={() => setShowLinkEntry(false)}>
           Hide
         </button>
       : <button onClick={() => setShowLinkEntry(true)}>
+          Show
+        </button>
+    : showLinkEntry 
+      ? <button onClick={() => setShowLinkEntry(false)}>
+          Hide
+        </button>
+      : isHovering && 
+        <button onClick={() => setShowLinkEntry(true)}>
           {props.links.length !== 0 ? "Show" : "Add Links"}
         </button>
   )
@@ -62,7 +74,7 @@ const FolderTree = forwardRef((props, ref) => {
     <input 
       className='linkInput'
       value={linkText}
-      onKeyDown={handleKey}
+      onKeyDown={handleKeyLink}
       onChange={e => {setLinkText(e.target.value)}}
     />
   )
@@ -70,6 +82,60 @@ const FolderTree = forwardRef((props, ref) => {
   const handleDelete = (link, path) => {
     props.handleDelete(link, path)
   }
+
+  const sendNewDir = (dir, path) => {
+    props.handleAddDirectory(dir, path)
+  }
+
+  const addFolder = (dir) => {
+    if ( dir !== undefined && dir != '') {
+      sendNewDir(dir, props.path)
+    }
+    setFolderText("")
+    setShowAddFolder(false)
+  }
+
+  const handleKeyFolder = (e) => {
+    if (e.key === 'Enter') {
+      console.log("Enter pressed")
+      addFolder(e.target.value)
+    }
+  }
+
+  const addFolderInput = (
+    <div>
+      <input 
+        className='linkInput'
+        value={folderText}
+        onKeyDown={handleKeyFolder}
+        onChange={e => {setFolderText(e.target.value)}}
+      />
+      <button onClick={() => addFolder(folderText)}>Add Folder</button>
+    </div>
+  )
+
+  const LabelSection = ({ handleMouseOver, handleMouseOut }) => {
+    return(
+      <div onMouseOver={handleMouseOver} onMouseOut={handleMouseOut}>
+        <h4>
+          <button onClick={() => handleExpand(props.path, props.expanded)}>
+            {props.expanded ? '-' : '+'}
+          </button> 
+          {props.name} 
+          {addLinkBtn}
+          {isHovering && <button onClick={() => setShowAddFolder(true)}>Add Directory</button>}
+        </h4>
+      </div>
+    )
+  }
+
+  const handleMouseOver = () => {
+    setIsHovering(true);
+  };
+
+  const handleMouseOut = () => {
+    setIsHovering(false);
+  };
 
   const childPaths = (
     props.children.map((child, index) => {
@@ -87,6 +153,7 @@ const FolderTree = forwardRef((props, ref) => {
           addLink = {handleAddLink}
           handleDelete = {handleDelete}
           ref = {childRef}
+          handleAddDirectory = {sendNewDir}
         />
       )
     })
@@ -94,14 +161,23 @@ const FolderTree = forwardRef((props, ref) => {
 
   return (
     <div>
-      <div>
+        <LabelSection 
+          handleMouseOver={handleMouseOver}
+          handleMouseOut={handleMouseOut} 
+        />
+          
+        {/* <div  handleMouseOver={handleMouseOver}
+          handleMouseOut={handleMouseOut} >
         <h4>
           <button onClick={() => handleExpand(props.path, props.expanded)}>
             {props.expanded ? '-' : '+'}
           </button> 
           {props.name} 
           {addLinkBtn}
+          {isHovering && <button onClick={() => handleAddDirectory(props.path)}>Add Directory</button>}
         </h4>
+        </div> */}
+        {showAddFolder && addFolderInput}
         {showLinkEntry && linkEntry}
         {props.links.length !== 0 && showLinkEntry && 
           <LinkSection 
@@ -110,7 +186,6 @@ const FolderTree = forwardRef((props, ref) => {
             handleDelete = {handleDelete}
           />
         }
-      </div>
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
         {props.expanded && childPaths}
       </div>

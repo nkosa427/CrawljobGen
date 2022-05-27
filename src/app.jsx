@@ -31,6 +31,7 @@ class App extends React.Component{
     this.addLink = this.addLink.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
     this.clearLinks = this.clearLinks.bind(this);
+    this.handleAddDirectory =this.handleAddDirectory.bind(this);
 
     this.state = {
       categories: [{
@@ -296,22 +297,23 @@ class App extends React.Component{
     let dirSearch = (obj) => {
       console.log("searching for dirs in", obj.path)
       var dirs = ipcRenderer.sendSync('getSubDirs', obj.path)
-
-      dirs.forEach((dir) => {
-        let check = obj.children.some((child) => {
-          return child.name == dir
-        })
-
-        if (!check) {
-          obj.children.push({
-            name: dir,
-            path: obj.path + this.state.slashType + dir,
-            links: [],
-            children: []
+      
+      if (dirs !== null) {
+        dirs.forEach((dir) => {
+          let check = obj.children.some((child) => {
+            return child.name == dir
           })
-        }
-      })
 
+          if (!check) {
+            obj.children.push({
+              name: dir,
+              path: obj.path + this.state.slashType + dir,
+              links: [],
+              children: []
+            })
+          }
+        })
+      }
       obj.expanded = true
       // console.log("obj:", obj)
     }
@@ -450,7 +452,6 @@ class App extends React.Component{
     }
 
     let update = (path) => obj => {
-      console.log("obj:", obj)
       if (obj.links.length > 0) {
         delLinks(obj)
       } 
@@ -471,6 +472,39 @@ class App extends React.Component{
       })
       this.child.current.hideLinkEntries()
     }
+  }
+
+  handleAddDirectory(dir, path) {
+    let addDir = (obj, details) => {
+      obj.children.push({
+        name: details.dir,
+        path: obj.path + this.state.slashType + details.dir,
+        expanded: false,
+        links: [],
+        children: []
+      })
+    }
+
+    let update = (details) => obj => {
+      if (obj.path === details.path) {
+        addDir(obj, details)
+      } else if (obj.children) {
+        return obj.children.some(update(details))
+      }
+    }
+
+    let stateCpy = this.state.directories
+    
+    if (stateCpy.path === path) {
+      addDir(stateCpy, {path: path, dir: dir})
+    } else {
+      stateCpy.children.forEach(update({path: path, dir: dir}))
+    }
+
+    this.setState({
+      directories: stateCpy
+    })
+
   }
 
   render() {
@@ -543,6 +577,7 @@ class App extends React.Component{
           addLink = {this.addLink}
           handleDelete = {this.handleDelete}
           ref = {this.child}
+          handleAddDirectory = {this.handleAddDirectory}
         />
     </div>
    );
