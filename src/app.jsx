@@ -315,6 +315,7 @@ class App extends React.Component{
       console.log("searching for dirs in", obj.path)
       var dirs = ipcRenderer.sendSync('getSubDirs', obj.path)
       var newDirs = []
+      var cats = []
       
       if (dirs !== null) {
         dirs.forEach((dir) => {
@@ -323,12 +324,21 @@ class App extends React.Component{
           })
 
           if (!check) {
-            newDirs.push({
-              name: dir,
-              path: obj.path + this.state.slashType + dir,
-              links: [],
-              children: []
-            })
+            if (dir.endsWith(',')) {
+              cats.push({
+                name: dir,
+                path: obj.path + this.state.slashType + dir,
+                links: [],
+                children: []
+              })
+            } else {
+              newDirs.push({
+                name: dir,
+                path: obj.path + this.state.slashType + dir,
+                links: [],
+                children: []
+              })
+            }
           }
         })
       }
@@ -344,8 +354,17 @@ class App extends React.Component{
         }
         return comparison;
       })
-      
-      console.log("newDirs:", newDirs)
+
+      // console.log("newDirs:", newDirs)
+      cats.forEach((cat) => {
+        obj.children.push({
+          name: cat.name,
+          path: obj.path + this.state.slashType + cat.name,
+          links: [],
+          children: []
+        })
+      })
+
       newDirs.forEach((newDir) => {
         obj.children.push({
           name: newDir.name,
