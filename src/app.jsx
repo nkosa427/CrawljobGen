@@ -27,6 +27,7 @@ class App extends React.Component{
     // this.addBasePath = this.addBasePath.bind(this);
     // this.removeBasePath = this.removeBasePath.bind(this);
     this.getSubDirs = this.getSubDirs.bind(this);
+    this.sortDirectories = this.sortDirectories(this);
     this.setCollapsed = this.setCollapsed.bind(this);
     this.addLink = this.addLink.bind(this);
     this.handleDelete = this.handleDelete.bind(this);
@@ -293,19 +294,36 @@ class App extends React.Component{
     // ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
   }
 
+  sortDirectories(a, b) {
+    // Use toUpperCase() to ignore character casing
+    // const nameA = a.name.toLowerCase();
+    // const nameB = b.name.toLowerCase();
+
+    // let comparison = 0;
+    // if (nameA > nameB) {
+    //   comparison = 1;
+    // } else if (nameA < nameB) {
+    //   comparison = -1;
+    // }
+    // return comparison;
+    console.log("A:", a, "B:", b)
+    return 1
+  }
+
   getSubDirs(path) {
     let dirSearch = (obj) => {
       console.log("searching for dirs in", obj.path)
       var dirs = ipcRenderer.sendSync('getSubDirs', obj.path)
+      var newDirs = []
       
       if (dirs !== null) {
         dirs.forEach((dir) => {
           let check = obj.children.some((child) => {
-            return child.name == dir
+            return child.name == dir //If directory has been previously loaded
           })
 
           if (!check) {
-            obj.children.push({
+            newDirs.push({
               name: dir,
               path: obj.path + this.state.slashType + dir,
               links: [],
@@ -314,6 +332,29 @@ class App extends React.Component{
           }
         })
       }
+      newDirs.sort((a, b) => {
+        let nameA = a.name.toLowerCase();
+        let nameB = b.name.toLowerCase();
+
+        let comparison = 0;
+        if (nameA > nameB) {
+          comparison = 1;
+        } else if (nameA < nameB) {
+          comparison = -1;
+        }
+        return comparison;
+      })
+      
+      console.log("newDirs:", newDirs)
+      newDirs.forEach((newDir) => {
+        obj.children.push({
+          name: newDir.name,
+          path: obj.path + this.state.slashType + newDir.name,
+          links: [],
+          children: []
+        })
+      })
+
       obj.expanded = true
       // console.log("obj:", obj)
     }
@@ -329,7 +370,7 @@ class App extends React.Component{
     let stateCpy = this.state.directories
     stateCpy.children.forEach(update(path))
 
-    if (stateCpy.children.length == 0 || stateCpy.path === path) {
+    if (stateCpy.children.length == 0 || stateCpy.path === path) {  // For first folders requested
       dirSearch(stateCpy)
       this.setState({
         directories: stateCpy
