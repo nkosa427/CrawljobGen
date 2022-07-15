@@ -223,7 +223,18 @@ ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
         fs.writeFile(
           file.filePath.toString(), 
           outText, 
-          (err) => {if (err) throw err;}
+          (err) => {
+            if (err) {
+              throw err;
+            } else {
+              dialog.showMessageBox({
+                type: 'info',
+                buttons: ['Ok'],
+                title: 'Write success',
+                message: 'Finished writing file'
+              })
+            }
+          }
         );
 
         console.log("Finished writing");
