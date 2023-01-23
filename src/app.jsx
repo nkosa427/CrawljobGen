@@ -61,7 +61,8 @@ class App extends React.Component{
         expanded: false,
         links: [],
         children: []
-      }
+      },
+      textAreaText: ''
     }  
   }
 
@@ -336,7 +337,9 @@ class App extends React.Component{
 
     allTargetLinks = this.printDirLinks(targetDir, allTargetLinks)
     console.log("AllLinks:", allTargetLinks)
-    
+    this.setState({
+      textAreaText: allTargetLinks.join('\n')
+    })
 
     // ipcRenderer.send('generateCrawljob', allLinks, this.state.cjPath, this.state.slashType)
     // ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
@@ -638,6 +641,7 @@ class App extends React.Component{
   render() {
     return(
       <div>
+        <textarea value={this.state.textAreaText} />
         <div>
           <label>Top level directory: {this.state.topDir}</label>
           <br />
