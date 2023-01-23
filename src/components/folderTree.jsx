@@ -25,6 +25,10 @@ const FolderTree = forwardRef((props, ref) => {
     props.getSubDirs(path)
   }
 
+  const printDirs = (path) => {
+    props.printDir(path)
+  }
+
   const setCollapsed = (path) => {
     console.log("Setting collapsed:", path)
     props.setCollapsed(path)
@@ -51,6 +55,10 @@ const FolderTree = forwardRef((props, ref) => {
     }
   }
 
+  const printDirLinks = () => {
+    printDirs(props.path)
+  }
+
   const addLinkBtn = (
     props.links.length !== 0
     ? showLinkEntry
@@ -72,6 +80,7 @@ const FolderTree = forwardRef((props, ref) => {
 
   const linkEntry = (
     <input 
+      type="textarea"
       className='linkInput'
       value={linkText}
       onKeyDown={handleKeyLink}
@@ -124,6 +133,7 @@ const FolderTree = forwardRef((props, ref) => {
           {props.name} 
           {addLinkBtn}
           {isHovering && <button onClick={() => setShowAddFolder(true)}>Add Directory</button>}
+          {isHovering && <button onClick={() => printDirLinks()}>Print</button>}
         </h4>
       </div>
     )
@@ -154,6 +164,7 @@ const FolderTree = forwardRef((props, ref) => {
           handleDelete = {handleDelete}
           ref = {childRef}
           handleAddDirectory = {sendNewDir}
+          printDir = {printDirs}
         />
       )
     })

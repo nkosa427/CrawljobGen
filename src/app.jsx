@@ -22,7 +22,10 @@ class App extends React.Component{
     // this.convertSlashesChecked = this.convertSlashesChecked.bind(this);
     // this.trimPath = this.trimPath.bind(this);
     this.searchLinks = this.searchLinks.bind(this);
+    this.findPath = this.findPath.bind(this);
     this.printFile = this.printFile.bind(this);
+    this.printDir = this.printDir.bind(this);
+    this.printDirLinks = this.printDirLinks.bind(this);
     // this.removeLink = this.removeLink.bind(this);
     // this.addBasePath = this.addBasePath.bind(this);
     // this.removeBasePath = this.removeBasePath.bind(this);
@@ -294,6 +297,51 @@ class App extends React.Component{
     // ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
   }
 
+  printDirLinks(dirs, allLinks) {
+    if (dirs.links.length > 0) {
+      dirs.links.forEach((link) => {
+        allLinks.push(link)
+      })
+      // allLinks.push(dirs.links)
+    }
+
+    dirs.children.forEach((child) => {
+      allLinks = this.printDirLinks(child, allLinks)
+    })
+
+    return allLinks
+  }
+
+  findPath(dirs, path, target) {
+    // console.log("Searching", dirs.path)
+    if (dirs.path == path) {
+      return dirs
+    }
+
+    dirs.children.forEach((child) => {
+      target = this.findPath(child, path, target)
+    })
+
+    return target
+  }
+
+  printDir(dir){
+    let allTargetLinks = []
+    let targetDir = ""
+    console.log("PRINT PATH:", dir)
+    let stateCpy = this.state.directories
+
+    targetDir = this.findPath(stateCpy, dir, targetDir)
+    console.log("Received dir:", targetDir)
+
+    allTargetLinks = this.printDirLinks(targetDir, allTargetLinks)
+    console.log("AllLinks:", allTargetLinks)
+    
+
+    // ipcRenderer.send('generateCrawljob', allLinks, this.state.cjPath, this.state.slashType)
+    // ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
+  }
+
   sortDirectories(a, b) {
     // Use toUpperCase() to ignore character casing
     // const nameA = a.name.toLowerCase();
@@ -430,18 +478,38 @@ class App extends React.Component{
     console.log("Add", link, "to", path)
 
     let pushLink = (link, obj) => {
-      let check = obj.links.some((ln) => {
-        return link === ln
+      let arr = link.split(/\r?\n| /)
+      let count = 0
+
+      arr.forEach(arrLink => {
+        let check = obj.links.some((ln) => {
+          return arrLink === ln
+        })
+  
+        if (!check) {
+          obj.links.push(arrLink)
+          count += 1
+        } else {
+          console.log("Duplicate link")
+        }
       })
 
-      if (!check) {
-        obj.links.push(link)
-        this.setState({
-          numLinks: this.state.numLinks + 1
-        })
-      } else {
-        console.log("Duplicate link")
-      }
+      this.setState({
+        numLinks: this.state.numLinks + count
+      })
+
+      // let check = obj.links.some((ln) => {
+      //   return link === ln
+      // })
+
+      // if (!check) {
+      //   obj.links.push(link)
+      //   this.setState({
+      //     numLinks: this.state.numLinks + 1
+      //   })
+      // } else {
+      //   console.log("Duplicate link")
+      // }
     }
 
     let update = (link, path) => obj => {
@@ -536,7 +604,7 @@ class App extends React.Component{
 
   handleAddDirectory(dir, path) {
     let addDir = (obj, details) => {
-      obj.children.push({
+      obj.children.unshift({
         name: details.dir,
         path: obj.path + this.state.slashType + details.dir,
         expanded: false,
@@ -638,6 +706,7 @@ class App extends React.Component{
           handleDelete = {this.handleDelete}
           ref = {this.child}
           handleAddDirectory = {this.handleAddDirectory}
+          printDir = {this.printDir}
         />
     </div>
    );
