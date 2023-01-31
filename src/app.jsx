@@ -599,7 +599,8 @@ class App extends React.Component{
       stateCpy.children.forEach(update(stateCpy.path))
       this.setState({
         directories: stateCpy,
-        numLinks: 0
+        numLinks: 0,
+        textAreaText: ''
       })
       this.child.current.hideLinkEntries()
     }

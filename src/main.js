@@ -135,65 +135,20 @@ function removeTrailingSlash(obj) {
   return obj
 }
 
-ipcMain.on('printFile', (event, folders, convert, prefix) => {
-  if (convert || prefix != ''){
-    folders = convertPathsToUnix(folders, convert, prefix);
-  }
-
-  var outText = "";
-
-  for (let i = 0; i < folders.length; i++){
-    for (let j = 0; j < folders[i].links.length; j++){
-      outText += "text=" + folders[i].links[j] + "\n";
-      outText += "downloadFolder=" + folders[i].path + "\n\n";
-    }
-  }
-
-  console.log("final text: " + outText);
-  
-  let dt = new Date();
-  let path = dt.getMonth() + "-" + dt.getDay() + "-" + dt.getFullYear() + "." + dt.getHours() + "-" + dt.getMinutes() + "-" + dt.getSeconds();
-  dialog.showSaveDialog({
-    title: 'Select File Location',
-    defaultPath: (path),
-    buttonLabel: 'Save',
-    filters: [{
-      name: 'crawljob file',
-      extensions: ['crawljob']
-    }]
-  }).then(file => {
-    if (!file.canceled && folders.length > 0 && folders[0].path != '') {
-      console.log(file.filePath.toString());
-
-      fs.writeFile(
-        file.filePath.toString(), 
-        outText, 
-        (err) => {if (err) throw err;}
-      );
-
-      console.log("Finished writing");
-    } else {
-      console.log("Not writing");
-    }
-    
-  }).catch(err =>{
-    console.log(err)
-  });
-});
-
 ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
   console.log('gen', allLinks)
   let dt = new Date();
   let month = dt.getMonth()+1
-  let path = month + "-" + dt.getDate() + "-" + dt.getFullYear() + "_" + dt.getHours() + "-" + dt.getMinutes() + "-" + dt.getSeconds()
+  let fileName = month + "-" + dt.getDate() + "-" + dt.getFullYear() + "_" + dt.getHours() + "-" + dt.getMinutes() + "-" + dt.getSeconds()
   // console.log("dt:", dt.getMonth()+1, "-", dt.getDate(), "-", dt.getFullYear())
   // console.log("tm:", dt.getHours(), ":", dt.getMinutes(), ":", dt.getSeconds(), "timezone", dt.getTimezoneOffset())
-  console.log("path:", path)
+  console.log("path:", fileName)
 
   let outText = ""
   allLinks.forEach((link) => {
     link.links.forEach((txt) => {
       outText += "text=" + txt + "\n";
+      outText += "packageName=" + fileName + "\n";
       outText += "downloadFolder=" + link.path + "\n\n";
     })
   })
@@ -210,7 +165,7 @@ ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
   } else {
     dialog.showSaveDialog({
       title: 'Select File Location',
-      defaultPath: (cjPath + slashType + path),
+      defaultPath: (cjPath + slashType + fileName),
       buttonLabel: 'Save',
       filters: [{
         name: 'crawljob file',
