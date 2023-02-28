@@ -1,6 +1,7 @@
-const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu, MenuItem } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, globalShortcut, net, Menu, MenuItem } = require('electron');
 const fs = require('fs');
 const yaml = require('js-yaml')
+const http = require('http')
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -201,6 +202,44 @@ ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
       console.log(err)
     });
   }
+})
+
+ipcMain.on('pydlp', (event, allObjects) => {
+  const exdata = JSON.stringify(allObjects)
+  console.log('pydlp called for:', exdata)
+
+  const request = net.request({
+    method: 'POST',
+    protocol: 'http:',
+    hostname: '127.0.0.1',
+    port: 5353,
+    path: '/add',
+    headers: {
+    'Content-Type': 'application/json'
+  }
+  });
+
+  request.on('response', (response) => {
+    console.log(`STATUS: ${response.statusCode}`)
+    console.log(`HEADERS: ${JSON.stringify(response.headers)}`)
+    response.on('data', (chunk) => {
+      console.log(`BODY: ${chunk}`)
+    })
+    response.on('end', () => {
+      console.log('No more data in response.')
+    })
+  })
+  
+  request.on('error', (error) => {
+    console.error(`ERROR: ${JSON.stringify(error)}`)
+  })
+  
+  const postData = JSON.stringify({
+    'message': 'Hello, World!'
+  })
+  
+  request.write(exdata)
+  request.end()
 })
 
 async function getDirectories(dir) {

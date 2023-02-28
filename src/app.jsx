@@ -177,17 +177,36 @@ class App extends React.Component{
 
     allObjects = this.getTargetObjs(targetDir, allObjects)
     console.log("allObjects:", allObjects)
+
+    ipcRenderer.send('pydlp', allObjects)
+
     // this.setState({
     //   textAreaText: allTargetLinks.join('\n')
     // })
   }
 
   getTargetObjs(dirs, allObjects) {
+    let prefix = this.state.topDir
+
+    //Remove the topDirectory prefix
+    let trimmedPath = dirs.path
+    if (dirs.path.startsWith(prefix)) {
+      trimmedPath = dirs.path.substring(prefix.length)
+    }
+
+    //Remove leading backslash
+    if (trimmedPath.startsWith("\\")) {
+      trimmedPath = trimmedPath.substring(1)
+    }
+
+    //Change backslashes to forward slashes
+    trimmedPath = trimmedPath.replace(/\\/g, '/')
+
     if (dirs.links.length > 0) {
       dirs.links.forEach((link) => {
         allObjects.push({
           "link": link,
-          "destination": dirs.path
+          "destination": trimmedPath
         })
       })
       // allLinks.push(dirs.links)
