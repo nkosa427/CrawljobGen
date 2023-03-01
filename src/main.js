@@ -7,7 +7,7 @@ const configFilePath = './config.yaml'
 
 try {
   const config = yaml.load(fs.readFileSync(configFilePath, 'utf8'))
-  
+
   global.pydlpPort = config.pydlpPort
   global.pydlpAddress = config.pydlpAddress
   global.cjPath = config.cjPath
@@ -126,16 +126,6 @@ ipcMain.on('open-dialog', (event, defPath) => {
   })
 });
 
-function convertPathsToUnix(folders, convert, prefix) {
-  folders.forEach(folder => {
-    folder.path = folder.path.replace(prefix, '');
-    if (convert) {
-      folder.path = folder.path.replace(/\\/g, "/")
-    }
-  });
-  return folders;
-}
-
 function convertPathsToWindows(obj) {
   Object.keys(obj).forEach(key => {
     obj[key] = obj[key].replace(/\//g, "\\")
@@ -226,8 +216,8 @@ ipcMain.on('pydlp', (event, allObjects) => {
   const request = net.request({
     method: 'POST',
     protocol: 'http:',
-    hostname: '127.0.0.1',
-    port: 5353,
+    hostname: pydlpAddress,
+    port: pydlpPort,
     path: '/add',
     headers: {
     'Content-Type': 'application/json'
@@ -249,31 +239,9 @@ ipcMain.on('pydlp', (event, allObjects) => {
     console.error(`ERROR: ${JSON.stringify(error)}`)
   })
   
-  const postData = JSON.stringify({
-    'message': 'Hello, World!'
-  })
-  
   request.write(exdata)
   request.end()
 })
-
-async function getDirectories(dir) {
-  fs.access(dir, (err) => {
-    if (err) {
-      console.log("Error accessing directory:", dir)
-    } else {
-      fs.readdir(dir, { withFileTypes: true }, (err, files) => {
-        if (err) {
-          console.log("Error reading directory ", dir, err)
-          return "Error reading directory " + err
-        }
-        files = files.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name)
-        console.log('f:', files, typeof(files))
-        return files
-      })
-    }
-  })
-}
 
 function directoryValid(dir) {
   try {
@@ -283,14 +251,6 @@ function directoryValid(dir) {
     console.log("Error accessing directory:", dir)
     return false
   }
-  // fs.access(dir, (err) => {
-  //   if (err) {
-  //     console.log("Error accessing directory:", dir)
-  //     return false
-  //   } else {
-  //     return true
-  //   }
-  // })
 }
 
 ipcMain.on('getSubDirs', (event, dir) => {
@@ -337,9 +297,4 @@ ipcMain.on('clearLinks', (event) => {
   );
 
   event.returnValue = choice
-
-  // if (!choice) {
-  //   console.log("reloading");
-  //   mainWindow.reload();
-  // }
 })
