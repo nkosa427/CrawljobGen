@@ -3,6 +3,21 @@ const fs = require('fs');
 const yaml = require('js-yaml')
 const http = require('http')
 
+const configFilePath = './config.yaml'
+
+try {
+  const config = yaml.load(fs.readFileSync(configFilePath, 'utf8'))
+  
+  global.pydlpPort = config.pydlpPort
+  global.pydlpAddress = config.pydlpAddress
+  global.cjPath = config.cjPath
+} catch (e) {
+  console.error(`Error loading config file: ${e}`)
+  app.exit(1)
+}
+
+console.log("yamls:", pydlpAddress, pydlpPort)
+
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
   app.quit();
