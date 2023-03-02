@@ -27,6 +27,8 @@ class App extends React.Component{
     this.printDir = this.printDir.bind(this);
     this.printDirLinks = this.printDirLinks.bind(this);
     this.sendPyDlp = this.sendPyDlp.bind(this);
+    this.startLoop = this.startLoop.bind(this);
+    this.stopLoop = this.stopLoop.bind(this);
     // this.removeLink = this.removeLink.bind(this);
     // this.addBasePath = this.addBasePath.bind(this);
     // this.removeBasePath = this.removeBasePath.bind(this);
@@ -217,6 +219,16 @@ class App extends React.Component{
     })
 
     return allObjects
+  }
+
+  startLoop() {
+    console.log("Start Loop clicked")
+    ipcRenderer.send('startLoop')
+  }
+
+  stopLoop() {
+    console.log("Stop Loop clicked")
+    ipcRenderer.send('stopLoop')
   }
 
   sortDirectories(a, b) {
@@ -538,7 +550,9 @@ class App extends React.Component{
         </div>
         
         <button onClick={this.printFile}>Print to File</button>
-      
+        <button onClick={this.startLoop}>Start Loop</button>
+        <button onClick={this.stopLoop}>Stop Loop</button>
+
         <FolderTree 
           name = {this.state.directories.name}
           path = {this.state.directories.path}

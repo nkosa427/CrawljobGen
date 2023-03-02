@@ -243,6 +243,44 @@ ipcMain.on('pydlp', (event, allObjects) => {
   request.end()
 })
 
+ipcMain.on('startLoop', (event) => {
+  const url = 'http://' + pydlpAddress + ':' + pydlpPort + '/start_search_files';
+
+  const request = net.request(url);
+
+  request.on('response', (response) => {
+    console.log(`STATUS: ${response.statusCode}`);
+    console.log(`HEADERS: ${JSON.stringify(response.headers)}`);
+    response.on('data', (chunk) => {
+      console.log(`BODY: ${chunk}`);
+    });
+    response.on('end', () => {
+      console.log('No more data in response.');
+    });
+  });
+
+  request.end();
+})
+
+ipcMain.on('stopLoop', (event) => {
+  const url = 'http://' + pydlpAddress + ':' + pydlpPort + '/stop_search_files';
+
+  const request = net.request(url);
+
+  request.on('response', (response) => {
+    console.log(`STATUS: ${response.statusCode}`);
+    console.log(`HEADERS: ${JSON.stringify(response.headers)}`);
+    response.on('data', (chunk) => {
+      console.log(`BODY: ${chunk}`);
+    });
+    response.on('end', () => {
+      console.log('No more data in response.');
+    });
+  });
+
+  request.end();
+})
+
 function directoryValid(dir) {
   try {
     fs.accessSync(dir)
