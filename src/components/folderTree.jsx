@@ -25,6 +25,14 @@ const FolderTree = forwardRef((props, ref) => {
     props.getSubDirs(path)
   }
 
+  const printDirs = (path) => {
+    props.printDir(path)
+  }
+
+  const sendPyDlpPass = (path) => {
+    props.sendPyDlp(path)
+  }
+
   const setCollapsed = (path) => {
     console.log("Setting collapsed:", path)
     props.setCollapsed(path)
@@ -51,6 +59,14 @@ const FolderTree = forwardRef((props, ref) => {
     }
   }
 
+  const printDirLinks = () => {
+    printDirs(props.path)
+  }
+
+  const pressPyDlp = () => {
+    sendPyDlpPass(props.path)
+  }
+
   const addLinkBtn = (
     props.links.length !== 0
     ? showLinkEntry
@@ -71,12 +87,15 @@ const FolderTree = forwardRef((props, ref) => {
   )
 
   const linkEntry = (
-    <input 
-      className='linkInput'
-      value={linkText}
-      onKeyDown={handleKeyLink}
-      onChange={e => {setLinkText(e.target.value)}}
-    />
+    <div style={{ paddingLeft: 25 }}>
+      <input 
+        type="textarea"
+        className='linkInput'
+        value={linkText}
+        onKeyDown={handleKeyLink}
+        onChange={e => {setLinkText(e.target.value)}}
+      />
+    </div>
   )
 
   const handleDelete = (link, path) => {
@@ -124,6 +143,8 @@ const FolderTree = forwardRef((props, ref) => {
           {props.name} 
           {addLinkBtn}
           {isHovering && <button onClick={() => setShowAddFolder(true)}>Add Directory</button>}
+          {isHovering && <button onClick={() => printDirLinks()}>Print</button>}
+          {isHovering && <button onClick={() => pressPyDlp()}>PyDlp</button>}
         </h4>
       </div>
     )
@@ -154,6 +175,8 @@ const FolderTree = forwardRef((props, ref) => {
           handleDelete = {handleDelete}
           ref = {childRef}
           handleAddDirectory = {sendNewDir}
+          printDir = {printDirs}
+          sendPyDlp = {sendPyDlpPass}
         />
       )
     })
@@ -180,11 +203,13 @@ const FolderTree = forwardRef((props, ref) => {
         {showAddFolder && addFolderInput}
         {showLinkEntry && linkEntry}
         {props.links.length !== 0 && showLinkEntry && 
-          <LinkSection 
-            links = {props.links}
-            path = {props.path}
-            handleDelete = {handleDelete}
-          />
+          <div style={{ paddingLeft: 25 }}>
+            <LinkSection 
+              links = {props.links}
+              path = {props.path}
+              handleDelete = {handleDelete}
+            />
+          </div>
         }
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
         {props.expanded && childPaths}

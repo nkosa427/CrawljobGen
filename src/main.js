@@ -1,6 +1,22 @@
-const { app, BrowserWindow, ipcMain, dialog, globalShortcut, Menu, MenuItem } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, globalShortcut, net, Menu, MenuItem } = require('electron');
 const fs = require('fs');
 const yaml = require('js-yaml')
+const http = require('http')
+
+const configFilePath = './config.yaml'
+
+try {
+  const config = yaml.load(fs.readFileSync(configFilePath, 'utf8'))
+
+  global.pydlpPort = config.pydlpPort
+  global.pydlpAddress = config.pydlpAddress
+  global.cjPath = config.cjPath
+} catch (e) {
+  console.error(`Error loading config file: ${e}`)
+  app.exit(1)
+}
+
+console.log("yamls:", pydlpAddress, pydlpPort)
 
 // Handle creating/removing shortcuts on Windows when installing/uninstalling.
 if (require('electron-squirrel-startup')) { // eslint-disable-line global-require
@@ -110,16 +126,6 @@ ipcMain.on('open-dialog', (event, defPath) => {
   })
 });
 
-function convertPathsToUnix(folders, convert, prefix) {
-  folders.forEach(folder => {
-    folder.path = folder.path.replace(prefix, '');
-    if (convert) {
-      folder.path = folder.path.replace(/\\/g, "/")
-    }
-  });
-  return folders;
-}
-
 function convertPathsToWindows(obj) {
   Object.keys(obj).forEach(key => {
     obj[key] = obj[key].replace(/\//g, "\\")
@@ -135,65 +141,20 @@ function removeTrailingSlash(obj) {
   return obj
 }
 
-ipcMain.on('printFile', (event, folders, convert, prefix) => {
-  if (convert || prefix != ''){
-    folders = convertPathsToUnix(folders, convert, prefix);
-  }
-
-  var outText = "";
-
-  for (let i = 0; i < folders.length; i++){
-    for (let j = 0; j < folders[i].links.length; j++){
-      outText += "text=" + folders[i].links[j] + "\n";
-      outText += "downloadFolder=" + folders[i].path + "\n\n";
-    }
-  }
-
-  console.log("final text: " + outText);
-  
-  let dt = new Date();
-  let path = dt.getMonth() + "-" + dt.getDay() + "-" + dt.getFullYear() + "." + dt.getHours() + "-" + dt.getMinutes() + "-" + dt.getSeconds();
-  dialog.showSaveDialog({
-    title: 'Select File Location',
-    defaultPath: (path),
-    buttonLabel: 'Save',
-    filters: [{
-      name: 'crawljob file',
-      extensions: ['crawljob']
-    }]
-  }).then(file => {
-    if (!file.canceled && folders.length > 0 && folders[0].path != '') {
-      console.log(file.filePath.toString());
-
-      fs.writeFile(
-        file.filePath.toString(), 
-        outText, 
-        (err) => {if (err) throw err;}
-      );
-
-      console.log("Finished writing");
-    } else {
-      console.log("Not writing");
-    }
-    
-  }).catch(err =>{
-    console.log(err)
-  });
-});
-
 ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
   console.log('gen', allLinks)
   let dt = new Date();
   let month = dt.getMonth()+1
-  let path = month + "-" + dt.getDate() + "-" + dt.getFullYear() + "_" + dt.getHours() + "-" + dt.getMinutes() + "-" + dt.getSeconds()
+  let fileName = month + "-" + dt.getDate() + "-" + dt.getFullYear() + "_" + dt.getHours() + "-" + dt.getMinutes() + "-" + dt.getSeconds()
   // console.log("dt:", dt.getMonth()+1, "-", dt.getDate(), "-", dt.getFullYear())
   // console.log("tm:", dt.getHours(), ":", dt.getMinutes(), ":", dt.getSeconds(), "timezone", dt.getTimezoneOffset())
-  console.log("path:", path)
+  console.log("path:", fileName)
 
   let outText = ""
   allLinks.forEach((link) => {
     link.links.forEach((txt) => {
       outText += "text=" + txt + "\n";
+      outText += "packageName=" + fileName + "\n";
       outText += "downloadFolder=" + link.path + "\n\n";
     })
   })
@@ -210,7 +171,7 @@ ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
   } else {
     dialog.showSaveDialog({
       title: 'Select File Location',
-      defaultPath: (cjPath + slashType + path),
+      defaultPath: (cjPath + slashType + fileName),
       buttonLabel: 'Save',
       filters: [{
         name: 'crawljob file',
@@ -248,23 +209,77 @@ ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
   }
 })
 
-async function getDirectories(dir) {
-  fs.access(dir, (err) => {
-    if (err) {
-      console.log("Error accessing directory:", dir)
-    } else {
-      fs.readdir(dir, { withFileTypes: true }, (err, files) => {
-        if (err) {
-          console.log("Error reading directory ", dir, err)
-          return "Error reading directory " + err
-        }
-        files = files.filter(dirent => dirent.isDirectory()).map(dirent => dirent.name)
-        console.log('f:', files, typeof(files))
-        return files
-      })
-    }
+ipcMain.on('pydlp', (event, allObjects) => {
+  const exdata = JSON.stringify(allObjects)
+  console.log('pydlp called for:', exdata)
+
+  const request = net.request({
+    method: 'POST',
+    protocol: 'http:',
+    hostname: pydlpAddress,
+    port: pydlpPort,
+    path: '/add',
+    headers: {
+    'Content-Type': 'application/json'
+  }
+  });
+
+  request.on('response', (response) => {
+    console.log(`STATUS: ${response.statusCode}`)
+    console.log(`HEADERS: ${JSON.stringify(response.headers)}`)
+    response.on('data', (chunk) => {
+      console.log(`BODY: ${chunk}`)
+    })
+    response.on('end', () => {
+      console.log('No more data in response.')
+    })
   })
-}
+  
+  request.on('error', (error) => {
+    console.error(`ERROR: ${JSON.stringify(error)}`)
+  })
+  
+  request.write(exdata)
+  request.end()
+})
+
+ipcMain.on('startLoop', (event) => {
+  const url = 'http://' + pydlpAddress + ':' + pydlpPort + '/start_search_files';
+
+  const request = net.request(url);
+
+  request.on('response', (response) => {
+    console.log(`STATUS: ${response.statusCode}`);
+    console.log(`HEADERS: ${JSON.stringify(response.headers)}`);
+    response.on('data', (chunk) => {
+      console.log(`BODY: ${chunk}`);
+    });
+    response.on('end', () => {
+      console.log('No more data in response.');
+    });
+  });
+
+  request.end();
+})
+
+ipcMain.on('stopLoop', (event) => {
+  const url = 'http://' + pydlpAddress + ':' + pydlpPort + '/stop_search_files';
+
+  const request = net.request(url);
+
+  request.on('response', (response) => {
+    console.log(`STATUS: ${response.statusCode}`);
+    console.log(`HEADERS: ${JSON.stringify(response.headers)}`);
+    response.on('data', (chunk) => {
+      console.log(`BODY: ${chunk}`);
+    });
+    response.on('end', () => {
+      console.log('No more data in response.');
+    });
+  });
+
+  request.end();
+})
 
 function directoryValid(dir) {
   try {
@@ -274,14 +289,6 @@ function directoryValid(dir) {
     console.log("Error accessing directory:", dir)
     return false
   }
-  // fs.access(dir, (err) => {
-  //   if (err) {
-  //     console.log("Error accessing directory:", dir)
-  //     return false
-  //   } else {
-  //     return true
-  //   }
-  // })
 }
 
 ipcMain.on('getSubDirs', (event, dir) => {
@@ -328,9 +335,19 @@ ipcMain.on('clearLinks', (event) => {
   );
 
   event.returnValue = choice
+})
 
-  // if (!choice) {
-  //   console.log("reloading");
-  //   mainWindow.reload();
-  // }
+ipcMain.on('pydlpChoice', (event) => {
+  let choice = dialog.showMessageBoxSync(
+    {
+      type: 'question',
+      defaultId: 1,
+      noLink: true,
+      buttons: ['Yes', 'No'],
+      title: 'Clear links?',
+      message: 'Are you sure you want to call pyDlp?'
+    }
+  );
+
+  event.returnValue = choice
 })

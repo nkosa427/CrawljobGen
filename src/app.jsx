@@ -22,7 +22,13 @@ class App extends React.Component{
     // this.convertSlashesChecked = this.convertSlashesChecked.bind(this);
     // this.trimPath = this.trimPath.bind(this);
     this.searchLinks = this.searchLinks.bind(this);
+    this.findPath = this.findPath.bind(this);
     this.printFile = this.printFile.bind(this);
+    this.printDir = this.printDir.bind(this);
+    this.printDirLinks = this.printDirLinks.bind(this);
+    this.sendPyDlp = this.sendPyDlp.bind(this);
+    this.startLoop = this.startLoop.bind(this);
+    this.stopLoop = this.stopLoop.bind(this);
     // this.removeLink = this.removeLink.bind(this);
     // this.addBasePath = this.addBasePath.bind(this);
     // this.removeBasePath = this.removeBasePath.bind(this);
@@ -58,7 +64,8 @@ class App extends React.Component{
         expanded: false,
         links: [],
         children: []
-      }
+      },
+      textAreaText: ''
     }  
   }
 
@@ -88,186 +95,6 @@ class App extends React.Component{
     console.log(this.state);
   }
 
-  // handleTopDirChange(event) {
-  //   this.setState({
-  //     topDir: event.target.value
-  //   });
-  // }
-
-  // convertSlashes(){
-  //   let categoryCopy = this.state.categories;
-
-  //   if (this.state.convertSlashes) {
-  //     categoryCopy.forEach((category, index) => {
-  //       let dir = category.folderpath.replace(/\\/g, "/");
-  //       categoryCopy[index].displayPath = dir;
-  //     });
-  //   } else {
-  //     categoryCopy.forEach((category, index) => {
-  //       let dir = category.folderpath.replace(/\//g, "\\");
-  //       categoryCopy[index].displayPath = dir;
-  //     });
-  //   }
-
-  //   this.setState({
-  //     categories: categoryCopy
-  //   }, () => this.trimPath(this.state.prefix));
-  // }
-
-  // convertSlashesChecked(){
-  //   this.setState({
-  //     convertSlashes: !this.state.convertSlashes
-  //   }, () => {this.convertSlashes()});
-  // }
-
-  // trimPath(prefix){
-  //   let categoryCopy = this.state.categories;
-  //   categoryCopy.forEach((category, index) => {
-  //     let dir = category.folderpath.replace(prefix, '');
-  //     if (this.state.convertSlashes){
-  //       dir = dir.replace(/\\/g, "/");
-  //     }
-  //     categoryCopy[index].displayPath = dir;
-  //   });
-  //   this.setState({
-  //     categories: categoryCopy,
-  //     prefix: prefix
-  //   });
-  // }
-
-  // getFolderIndex(fp){
-  //   for (let i = 0; i < this.state.folders.length; i++) {
-  //     if (this.state.folders[i].path == fp){
-  //       return i;
-  //     }
-  //   }
-  //   return -1;
-  // }
-
-  // linkAdded(link, fp){
-  //   console.log("Adding " + link + " to " + fp + " at index " + this.getFolderIndex(fp));
-  //   let index = this.getFolderIndex(fp);
-  //   let foldersCopy = this.state.folders;
-  //   foldersCopy[index].links.push(link);
-  //   this.setState({
-  //     folders: foldersCopy,
-  //     numLinks: this.state.numLinks + 1
-  //   });
-  // }
-
-  // removeLink(link){
-  //   console.log("Remove " + link);
-  //   let foldersCopy = this.state.folders;
-    
-  //   for (let i = 0; i < foldersCopy.length; i++){
-  //     for (let j = 0; j < foldersCopy[i].links.length; j++){
-  //       if (link == foldersCopy[i].links[j]) {
-  //         console.log("Found " + foldersCopy[i].links[j] + " at " + i + "," + j);
-  //         foldersCopy[i].links.splice(j, 1);
-  //         this.setState({numLinks: this.state.numLinks - 1})
-  //       }
-  //     }
-  //   }
-  // }
-
-  // addNewCategory(){
-  //   var fp = String(ipcRenderer.sendSync('open-dialog'));
-  //   //Checks if the selected folder is already part of another category
-  //   const inArr = this.state.categories.some( (category) => {
-  //     return category.folderpath === fp
-  //   });
-
-  //   if (fp != [] && !inArr) {
-  //     //For the initial category since filepath was initialized in constructor as ''
-  //     if (this.state.categories.length == 1 && this.state.categories[0].folderpath == ''){
-  //       this.setState({
-  //         categories: [
-  //           {
-  //             folderpath: fp,
-  //             displayPath: fp,
-  //             links: [],
-  //             subcategories: []
-  //           }
-  //         ],
-  //         folders: [{
-  //           path: fp,
-  //           links: []
-  //         }]
-  //       }, () => {this.convertSlashes()});
-  //     } else {
-  //       this.setState({
-  //         categories: [
-  //           ...this.state.categories, 
-  //           {
-  //             folderpath: fp,
-  //             displayPath: fp,
-  //             links: [],
-  //             subcategories: []
-  //           }
-  //         ],
-  //         folders: [
-  //         ...this.state.folders,
-  //           {
-  //             path: fp,
-  //             links: []
-  //           }
-  //         ]
-  //       }, () => {this.convertSlashes()});
-  //     }
-  //   } else {
-  //     console.log("Invalid folder");
-  //   }
-  // }
-
-  // onSubCategoryAdded(fp){
-  //   console.log("onSubCategoryAdded for " + fp);
-  //   if (this.state.folders.length == 1 && this.state.folders[0] == ''){
-  //     this.setState({
-  //       folders: [{
-  //         path: fp,
-  //         links: []
-  //       }]
-  //     });
-  //   } else {
-  //     this.setState({
-  //       folders: [...this.state.folders, {
-  //         path: fp,
-  //         links: []
-  //       }]
-  //     });
-  //   }
-  // }
-
-  // printFolders(){
-  //   this.state.folders.forEach(folder => {
-  //     console.log("Folder: " + folder.path);
-  //     if (folder.links && folder.links.length > 0){
-  //       folder.links.forEach(link => {
-  //         console.log("\t" + link);
-  //       });
-  //     }
-      
-  //   })
-  // }
-
-  // addBasePath(){
-  //   var fp = String(ipcRenderer.sendSync('open-dialog') + "\\");
-  //   if (fp != ["\\"]){
-  //     this.setState({
-  //       basePath: fp,
-  //       prefix: fp
-  //     });
-  //     this.trimPath(fp)
-  //   }
-  // }
-
-  // removeBasePath(){
-  //   this.setState({
-  //     basePath: '',
-  //     prefix: ''
-  //   })
-  // }
-
   searchLinks(dirs, allLinks) {
     if (dirs.links.length > 0) {
       allLinks.push({
@@ -292,6 +119,119 @@ class App extends React.Component{
 
     ipcRenderer.send('generateCrawljob', allLinks, this.state.cjPath, this.state.slashType)
     // ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
+  }
+
+  printDirLinks(dirs, allLinks) {
+    if (dirs.links.length > 0) {
+      dirs.links.forEach((link) => {
+        allLinks.push(link)
+      })
+      // allLinks.push(dirs.links)
+    }
+
+    dirs.children.forEach((child) => {
+      allLinks = this.printDirLinks(child, allLinks)
+    })
+
+    return allLinks
+  }
+
+  findPath(dirs, path, target) {
+    // console.log("Searching", dirs.path)
+    if (dirs.path == path) {
+      return dirs
+    }
+
+    dirs.children.forEach((child) => {
+      target = this.findPath(child, path, target)
+    })
+
+    return target
+  }
+
+  printDir(dir){
+    let allTargetLinks = []
+    let targetDir = ""
+    console.log("PRINT PATH:", dir)
+    let stateCpy = this.state.directories
+
+    targetDir = this.findPath(stateCpy, dir, targetDir)
+    console.log("Received dir:", targetDir)
+
+    allTargetLinks = this.printDirLinks(targetDir, allTargetLinks)
+    console.log("AllLinks:", allTargetLinks)
+    this.setState({
+      textAreaText: allTargetLinks.join('\n')
+    })
+
+    // ipcRenderer.send('generateCrawljob', allLinks, this.state.cjPath, this.state.slashType)
+    // ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
+  }
+  
+  sendPyDlp(dir) {
+    let choice = ipcRenderer.sendSync('pydlpChoice')
+
+    if (!choice) {
+      console.log("Proceeding with pydlp")
+      let allObjects = []
+      let targetDir = ""
+      console.log("SEND PATH:", dir)
+      let stateCpy = this.state.directories
+
+      targetDir = this.findPath(stateCpy, dir, targetDir)
+      console.log("Received dir:", targetDir)
+
+      allObjects = this.getTargetObjs(targetDir, allObjects)
+      console.log("allObjects:", allObjects)
+    
+      ipcRenderer.send('pydlp', allObjects)
+    } else {
+      console.log("Declined pydlp")
+    }
+  }
+
+  getTargetObjs(dirs, allObjects) {
+    let prefix = this.state.topDir
+
+    //Remove the topDirectory prefix
+    let trimmedPath = dirs.path
+    if (dirs.path.startsWith(prefix)) {
+      trimmedPath = dirs.path.substring(prefix.length)
+    }
+
+    //Remove leading backslash
+    if (trimmedPath.startsWith("\\")) {
+      trimmedPath = trimmedPath.substring(1)
+    }
+
+    //Change backslashes to forward slashes
+    trimmedPath = trimmedPath.replace(/\\/g, '/')
+
+    if (dirs.links.length > 0) {
+      dirs.links.forEach((link) => {
+        allObjects.push({
+          "link": link,
+          "destination": trimmedPath
+        })
+      })
+      // allLinks.push(dirs.links)
+    }
+
+    dirs.children.forEach((child) => {
+      allObjects = this.getTargetObjs(child, allObjects)
+    })
+
+    return allObjects
+  }
+
+  startLoop() {
+    console.log("Start Loop clicked")
+    ipcRenderer.send('startLoop')
+  }
+
+  stopLoop() {
+    console.log("Stop Loop clicked")
+    ipcRenderer.send('stopLoop')
   }
 
   sortDirectories(a, b) {
@@ -325,6 +265,13 @@ class App extends React.Component{
 
           if (!check) {
             if (dir.endsWith(',')) {
+              cats.push({
+                name: dir,
+                path: obj.path + this.state.slashType + dir,
+                links: [],
+                children: []
+              })
+            } else if (dir.endsWith('models_')){
               cats.push({
                 name: dir,
                 path: obj.path + this.state.slashType + dir,
@@ -430,18 +377,38 @@ class App extends React.Component{
     console.log("Add", link, "to", path)
 
     let pushLink = (link, obj) => {
-      let check = obj.links.some((ln) => {
-        return link === ln
+      let arr = link.split(/\r?\n| /)
+      let count = 0
+
+      arr.forEach(arrLink => {
+        let check = obj.links.some((ln) => {
+          return arrLink === ln
+        })
+  
+        if (!check) {
+          obj.links.push(arrLink)
+          count += 1
+        } else {
+          console.log("Duplicate link")
+        }
       })
 
-      if (!check) {
-        obj.links.push(link)
-        this.setState({
-          numLinks: this.state.numLinks + 1
-        })
-      } else {
-        console.log("Duplicate link")
-      }
+      this.setState({
+        numLinks: this.state.numLinks + count
+      })
+
+      // let check = obj.links.some((ln) => {
+      //   return link === ln
+      // })
+
+      // if (!check) {
+      //   obj.links.push(link)
+      //   this.setState({
+      //     numLinks: this.state.numLinks + 1
+      //   })
+      // } else {
+      //   console.log("Duplicate link")
+      // }
     }
 
     let update = (link, path) => obj => {
@@ -528,7 +495,8 @@ class App extends React.Component{
       stateCpy.children.forEach(update(stateCpy.path))
       this.setState({
         directories: stateCpy,
-        numLinks: 0
+        numLinks: 0,
+        textAreaText: ''
       })
       this.child.current.hideLinkEntries()
     }
@@ -536,7 +504,7 @@ class App extends React.Component{
 
   handleAddDirectory(dir, path) {
     let addDir = (obj, details) => {
-      obj.children.push({
+      obj.children.unshift({
         name: details.dir,
         path: obj.path + this.state.slashType + details.dir,
         expanded: false,
@@ -570,6 +538,7 @@ class App extends React.Component{
   render() {
     return(
       <div>
+        <textarea value={this.state.textAreaText} />
         <div>
           <label>Top level directory: {this.state.topDir}</label>
           <br />
@@ -583,48 +552,10 @@ class App extends React.Component{
           <button onClick={this.printState}>Print State</button>
         </div>
         
-        {/* <label>
-          Convert Backslash to Forward slash?
-          <input 
-            type="checkbox" 
-            name="convertSlashes" 
-            checked={this.state.convertSlashes} 
-            onChange={this.convertSlashesChecked}
-          />
-        </label>
-
-      <div className='debugButtons'>
-        <label>Remove from beginning of path: </label>
-          <ReverseEntry 
-            trimPath={this.trimPath}
-            convertSlashes={this.state.convertSlashes}
-          />
-      </div>
-
-      <div>
-        <button onClick={this.addBasePath}>Add base path:</button>
-        <label>{this.state.basePath}</label>
-        {this.state.basePath != '' && <button onClick={this.removeBasePath}>Remove Base Path</button>}
-      </div>
-        
-        {this.state.categories.map((category, index) => {
-          if (category.folderpath != '') {
-            return <Category 
-              key={category.folderpath}
-              index={index}
-              path={category.folderpath} 
-              displayPath={category.displayPath}
-              passLink={this.linkAdded}
-              onAddSub={this.onSubCategoryAdded}
-              level={0}
-              removeLink={this.removeLink}
-            />
-          }
-        })} */}
-
-        {/* <button onClick={this.addNewCategory}>Add Category</button> */}
         <button onClick={this.printFile}>Print to File</button>
-      
+        <button onClick={this.startLoop}>Start Loop</button>
+        <button onClick={this.stopLoop}>Stop Loop</button>
+
         <FolderTree 
           name = {this.state.directories.name}
           path = {this.state.directories.path}
@@ -638,6 +569,8 @@ class App extends React.Component{
           handleDelete = {this.handleDelete}
           ref = {this.child}
           handleAddDirectory = {this.handleAddDirectory}
+          printDir = {this.printDir}
+          sendPyDlp = {this.sendPyDlp}
         />
     </div>
    );
