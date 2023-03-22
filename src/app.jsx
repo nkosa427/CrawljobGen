@@ -169,22 +169,25 @@ class App extends React.Component{
   }
   
   sendPyDlp(dir) {
-    let allObjects = []
-    let targetDir = ""
-    console.log("SEND PATH:", dir)
-    let stateCpy = this.state.directories
+    let choice = ipcRenderer.sendSync('pydlpChoice')
 
-    targetDir = this.findPath(stateCpy, dir, targetDir)
-    console.log("Received dir:", targetDir)
+    if (!choice) {
+      console.log("Proceeding with pydlp")
+      let allObjects = []
+      let targetDir = ""
+      console.log("SEND PATH:", dir)
+      let stateCpy = this.state.directories
 
-    allObjects = this.getTargetObjs(targetDir, allObjects)
-    console.log("allObjects:", allObjects)
+      targetDir = this.findPath(stateCpy, dir, targetDir)
+      console.log("Received dir:", targetDir)
 
-    ipcRenderer.send('pydlp', allObjects)
-
-    // this.setState({
-    //   textAreaText: allTargetLinks.join('\n')
-    // })
+      allObjects = this.getTargetObjs(targetDir, allObjects)
+      console.log("allObjects:", allObjects)
+    
+      ipcRenderer.send('pydlp', allObjects)
+    } else {
+      console.log("Declined pydlp")
+    }
   }
 
   getTargetObjs(dirs, allObjects) {

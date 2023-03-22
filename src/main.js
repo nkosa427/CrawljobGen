@@ -336,3 +336,18 @@ ipcMain.on('clearLinks', (event) => {
 
   event.returnValue = choice
 })
+
+ipcMain.on('pydlpChoice', (event) => {
+  let choice = dialog.showMessageBoxSync(
+    {
+      type: 'question',
+      defaultId: 1,
+      noLink: true,
+      buttons: ['Yes', 'No'],
+      title: 'Clear links?',
+      message: 'Are you sure you want to call pyDlp?'
+    }
+  );
+
+  event.returnValue = choice
+})

@@ -87,13 +87,15 @@ const FolderTree = forwardRef((props, ref) => {
   )
 
   const linkEntry = (
-    <input 
-      type="textarea"
-      className='linkInput'
-      value={linkText}
-      onKeyDown={handleKeyLink}
-      onChange={e => {setLinkText(e.target.value)}}
-    />
+    <div style={{ paddingLeft: 25 }}>
+      <input 
+        type="textarea"
+        className='linkInput'
+        value={linkText}
+        onKeyDown={handleKeyLink}
+        onChange={e => {setLinkText(e.target.value)}}
+      />
+    </div>
   )
 
   const handleDelete = (link, path) => {
@@ -201,11 +203,13 @@ const FolderTree = forwardRef((props, ref) => {
         {showAddFolder && addFolderInput}
         {showLinkEntry && linkEntry}
         {props.links.length !== 0 && showLinkEntry && 
-          <LinkSection 
-            links = {props.links}
-            path = {props.path}
-            handleDelete = {handleDelete}
-          />
+          <div style={{ paddingLeft: 25 }}>
+            <LinkSection 
+              links = {props.links}
+              path = {props.path}
+              handleDelete = {handleDelete}
+            />
+          </div>
         }
       <div style={{ position: 'relative', display: 'flex', flexDirection: 'column', left: 25, borderLeft: '1px solid', paddingLeft: 10 }}>
         {props.expanded && childPaths}
