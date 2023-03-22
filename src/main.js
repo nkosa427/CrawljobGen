@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog, globalShortcut, net, Menu, MenuItem } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, globalShortcut, net, shell } = require('electron');
 const fs = require('fs');
 const yaml = require('js-yaml')
 const http = require('http')
@@ -207,6 +207,11 @@ ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
       console.log(err)
     });
   }
+})
+
+ipcMain.on('openDir', (event, dir) => {
+  console.log("openDir requrest received for: ", dir)
+  shell.openPath(dir)
 })
 
 ipcMain.on('pydlp', (event, allObjects) => {
