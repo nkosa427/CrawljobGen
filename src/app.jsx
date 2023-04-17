@@ -26,6 +26,7 @@ class App extends React.Component{
     this.printFile = this.printFile.bind(this);
     this.printDir = this.printDir.bind(this);
     this.printDirLinks = this.printDirLinks.bind(this);
+    this.openDir = this.openDir.bind(this);
     this.sendPyDlp = this.sendPyDlp.bind(this);
     this.startLoop = this.startLoop.bind(this);
     this.stopLoop = this.stopLoop.bind(this);
@@ -166,6 +167,11 @@ class App extends React.Component{
 
     // ipcRenderer.send('generateCrawljob', allLinks, this.state.cjPath, this.state.slashType)
     // ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
+  }
+
+  openDir(dir) {
+    console.log("Open dir:", dir)
+    ipcRenderer.send('openDir', dir)
   }
   
   sendPyDlp(dir) {
@@ -569,6 +575,7 @@ class App extends React.Component{
           handleDelete = {this.handleDelete}
           ref = {this.child}
           handleAddDirectory = {this.handleAddDirectory}
+          openDir = {this.openDir}
           printDir = {this.printDir}
           sendPyDlp = {this.sendPyDlp}
         />

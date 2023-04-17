@@ -33,6 +33,11 @@ const FolderTree = forwardRef((props, ref) => {
     props.sendPyDlp(path)
   }
 
+  const openDirPass = (path) => {
+    props.openDir(path)
+  }
+
+
   const setCollapsed = (path) => {
     console.log("Setting collapsed:", path)
     props.setCollapsed(path)
@@ -61,6 +66,10 @@ const FolderTree = forwardRef((props, ref) => {
 
   const printDirLinks = () => {
     printDirs(props.path)
+  }
+
+  const pressOpenDir = () => {
+    openDirPass(props.path)
   }
 
   const pressPyDlp = () => {
@@ -144,6 +153,7 @@ const FolderTree = forwardRef((props, ref) => {
           {addLinkBtn}
           {isHovering && <button onClick={() => setShowAddFolder(true)}>Add Directory</button>}
           {isHovering && <button onClick={() => printDirLinks()}>Print</button>}
+          {isHovering && <button onClick={() => pressOpenDir()}>Open</button>}
           {isHovering && <button onClick={() => pressPyDlp()}>PyDlp</button>}
         </h4>
       </div>
@@ -175,6 +185,7 @@ const FolderTree = forwardRef((props, ref) => {
           handleDelete = {handleDelete}
           ref = {childRef}
           handleAddDirectory = {sendNewDir}
+          openDir = {openDirPass}
           printDir = {printDirs}
           sendPyDlp = {sendPyDlpPass}
         />
