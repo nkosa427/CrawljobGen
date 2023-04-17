@@ -225,8 +225,8 @@ ipcMain.on('pydlp', (event, allObjects) => {
     port: pydlpPort,
     path: '/add',
     headers: {
-    'Content-Type': 'application/json'
-  }
+      'Content-Type': 'application/json'
+    },
   });
 
   request.on('response', (response) => {
