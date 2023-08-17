@@ -9,6 +9,7 @@ try {
   const config = yaml.load(fs.readFileSync(configFilePath, 'utf8'))
 
   global.pydlpPort = config.pydlpPort
+  global.pydlp2Port = config.pydlp2Port
   global.pydlpAddress = config.pydlpAddress
   global.cjPath = config.cjPath
 } catch (e) {
@@ -214,15 +215,12 @@ ipcMain.on('openDir', (event, dir) => {
   shell.openPath(dir)
 })
 
-ipcMain.on('pydlp', (event, allObjects) => {
-  const exdata = JSON.stringify(allObjects)
-  console.log('pydlp called for:', exdata)
-
+function addRequest(addr, port, data) {
   const request = net.request({
     method: 'POST',
     protocol: 'http:',
-    hostname: pydlpAddress,
-    port: pydlpPort,
+    hostname: addr,
+    port: port,
     path: '/add',
     headers: {
       'Content-Type': 'application/json'
@@ -244,12 +242,36 @@ ipcMain.on('pydlp', (event, allObjects) => {
     console.error(`ERROR: ${JSON.stringify(error)}`)
   })
   
-  request.write(exdata)
+  request.write(data)
   request.end()
+}
+
+ipcMain.on('pydlp', (event, allObjects) => {
+  const exdata = JSON.stringify(allObjects)
+  // console.log('pydlp called for:', exdata)
+
+
+  // Assuming you have loaded the JSON data into the 'jsonData' variable
+  const jsonData = JSON.parse(exdata);
+
+  // Calculate the midpoint index to split the data
+  const midpoint = Math.ceil(jsonData.length / 2);
+
+  // Create two variables for the halves
+  const firstHalf = jsonData.slice(0, midpoint);
+  const secondHalf = jsonData.slice(midpoint);
+
+  // Now you have two arrays containing the split data and relationships intact
+  console.log("firstHalf:", firstHalf);
+  console.log("---------------------------------------------")
+  console.log("secondHalf:", secondHalf);
+
+  addRequest(pydlpAddress, pydlpPort, JSON.stringify(firstHalf))
+  addRequest(pydlpAddress, pydlp2Port, JSON.stringify(secondHalf))
 })
 
-ipcMain.on('startLoop', (event) => {
-  const url = 'http://' + pydlpAddress + ':' + pydlpPort + '/start_search_files';
+function startRequest(addr, port) {
+  const url = 'http://' + addr + ':' + port + '/start_search_files';
 
   const request = net.request(url);
 
@@ -265,6 +287,11 @@ ipcMain.on('startLoop', (event) => {
   });
 
   request.end();
+}
+
+ipcMain.on('startLoop', (event) => {
+  startRequest(pydlpAddress, pydlpPort)
+  startRequest(pydlpAddress, pydlp2Port)
 })
 
 ipcMain.on('stopLoop', (event) => {
