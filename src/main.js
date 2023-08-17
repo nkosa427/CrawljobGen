@@ -294,8 +294,8 @@ ipcMain.on('startLoop', (event) => {
   startRequest(pydlpAddress, pydlp2Port)
 })
 
-ipcMain.on('stopLoop', (event) => {
-  const url = 'http://' + pydlpAddress + ':' + pydlpPort + '/stop_search_files';
+function stopRequest(addr, port) {
+  const url = 'http://' + addr + ':' + port + '/stop_search_files';
 
   const request = net.request(url);
 
@@ -311,6 +311,11 @@ ipcMain.on('stopLoop', (event) => {
   });
 
   request.end();
+}
+
+ipcMain.on('stopLoop', (event) => {
+  stopRequest(pydlpAddress, pydlpPort)
+  stopRequest(pydlpAddress, pydlp2Port)
 })
 
 function directoryValid(dir) {
