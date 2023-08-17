@@ -254,20 +254,26 @@ ipcMain.on('pydlp', (event, allObjects) => {
   // Assuming you have loaded the JSON data into the 'jsonData' variable
   const jsonData = JSON.parse(exdata);
 
-  // Calculate the midpoint index to split the data
-  const midpoint = Math.ceil(jsonData.length / 2);
+  // Calculate the indexes for splitting based on percentages
+  const firstHalfEndIndex = Math.floor(jsonData.length * 0.45);
+  const secondHalfStartIndex = firstHalfEndIndex;
 
   // Create two variables for the halves
-  const firstHalf = jsonData.slice(0, midpoint);
-  const secondHalf = jsonData.slice(midpoint);
+  const firstHalf = jsonData.slice(0, firstHalfEndIndex);
+  const secondHalf = jsonData.slice(secondHalfStartIndex);
 
   // Now you have two arrays containing the split data and relationships intact
   console.log("firstHalf:", firstHalf);
   console.log("---------------------------------------------")
   console.log("secondHalf:", secondHalf);
 
-  addRequest(pydlpAddress, pydlpPort, JSON.stringify(firstHalf))
-  addRequest(pydlpAddress, pydlp2Port, JSON.stringify(secondHalf))
+  if (firstHalf.length != 0) {
+    addRequest(pydlpAddress, pydlpPort, JSON.stringify(firstHalf))
+  }
+  
+  if (secondHalf.length != 0) {
+    addRequest(pydlpAddress, pydlp2Port, JSON.stringify(secondHalf))
+  }
 })
 
 function startRequest(addr, port) {
