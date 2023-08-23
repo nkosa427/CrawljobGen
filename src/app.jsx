@@ -28,8 +28,10 @@ class App extends React.Component{
     this.printDirLinks = this.printDirLinks.bind(this);
     this.openDir = this.openDir.bind(this);
     this.sendPyDlp = this.sendPyDlp.bind(this);
-    this.startLoop = this.startLoop.bind(this);
-    this.stopLoop = this.stopLoop.bind(this);
+    this.startLoop1 = this.startLoop1.bind(this);
+    this.startLoop2 = this.startLoop2.bind(this);
+    this.stopLoop1 = this.stopLoop1.bind(this);
+    this.stopLoop2 = this.stopLoop2.bind(this);
     // this.removeLink = this.removeLink.bind(this);
     // this.addBasePath = this.addBasePath.bind(this);
     // this.removeBasePath = this.removeBasePath.bind(this);
@@ -230,14 +232,24 @@ class App extends React.Component{
     return allObjects
   }
 
-  startLoop() {
-    console.log("Start Loop clicked")
-    ipcRenderer.send('startLoop')
+  startLoop1() {
+    console.log("Start Loop clicked with inst 1")
+    ipcRenderer.send('startLoop', 1)
   }
 
-  stopLoop() {
-    console.log("Stop Loop clicked")
-    ipcRenderer.send('stopLoop')
+  startLoop2() {
+    console.log("Start Loop clicked with inst 2")
+    ipcRenderer.send('startLoop', 2)
+  }
+
+  stopLoop1() {
+    console.log("Stop Loop clicked with inst 1")
+    ipcRenderer.send('stopLoop', 1)
+  }
+
+  stopLoop2() {
+    console.log("Stop Loop clicked with inst 2")
+    ipcRenderer.send('stopLoop', 2)
   }
 
   sortDirectories(a, b) {
@@ -556,11 +568,15 @@ class App extends React.Component{
         <div className='debugButtons'>
           {/* <button onClick={this.printFolders}>Print Folders</button> */}
           <button onClick={this.printState}>Print State</button>
+          <button onClick={this.printFile}>Print to File</button>
         </div>
         
-        <button onClick={this.printFile}>Print to File</button>
-        <button onClick={this.startLoop}>Start Loop</button>
-        <button onClick={this.stopLoop}>Stop Loop</button>
+        <br/>
+        <button onClick={this.startLoop1}>Start Loop 1</button>
+        <button onClick={this.startLoop2}>Start Loop 2</button>
+        <br/>
+        <button onClick={this.stopLoop1}>Stop Loop 1</button>
+        <button onClick={this.stopLoop2}>Stop Loop 2</button>
 
         <FolderTree 
           name = {this.state.directories.name}

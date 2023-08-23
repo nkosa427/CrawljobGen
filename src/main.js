@@ -295,9 +295,15 @@ function startRequest(addr, port) {
   request.end();
 }
 
-ipcMain.on('startLoop', (event) => {
-  startRequest(pydlpAddress, pydlpPort)
-  startRequest(pydlpAddress, pydlp2Port)
+ipcMain.on('startLoop', (event, inst) => {
+  console.log('Start loop with inst', inst)
+  if (inst == 0 || inst == 1) {
+    startRequest(pydlpAddress, pydlpPort)
+  }
+
+  if (inst == 0 || inst == 2) {
+    startRequest(pydlpAddress, pydlp2Port)
+  }
 })
 
 function stopRequest(addr, port) {
@@ -319,9 +325,14 @@ function stopRequest(addr, port) {
   request.end();
 }
 
-ipcMain.on('stopLoop', (event) => {
-  stopRequest(pydlpAddress, pydlpPort)
-  stopRequest(pydlpAddress, pydlp2Port)
+ipcMain.on('stopLoop', (event, inst) => {
+  console.log("Stop loop wit inst", inst)
+  if (inst == 1) {
+    stopRequest(pydlpAddress, pydlpPort)
+  } else if (inst == 2) {
+    stopRequest(pydlpAddress, pydlp2Port)
+  }
+  
 })
 
 function directoryValid(dir) {
