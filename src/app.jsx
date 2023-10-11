@@ -176,7 +176,7 @@ class App extends React.Component{
     ipcRenderer.send('openDir', dir)
   }
   
-  sendPyDlp(dir) {
+  sendPyDlp(dir, inst) {
     let choice = ipcRenderer.sendSync('pydlpChoice')
 
     if (!choice) {
@@ -192,7 +192,7 @@ class App extends React.Component{
       allObjects = this.getTargetObjs(targetDir, allObjects)
       console.log("allObjects:", allObjects)
     
-      ipcRenderer.send('pydlp', allObjects)
+      ipcRenderer.send('pydlp', allObjects, inst)
     } else {
       console.log("Declined pydlp")
     }
@@ -567,8 +567,8 @@ class App extends React.Component{
         <h3>Number of links: {this.state.numLinks}</h3>
         <div className='debugButtons'>
           {/* <button onClick={this.printFolders}>Print Folders</button> */}
-          <button onClick={this.printState}>Print State</button>
           <button onClick={this.printFile}>Print to File</button>
+          <button onClick={this.printState}>Print State</button>
         </div>
         
         <br/>
