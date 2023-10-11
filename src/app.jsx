@@ -561,8 +561,9 @@ class App extends React.Component{
             {/* <button onClick={this.printFolders}>Print Folders</button> */}
             <button onClick={this.printFile}>Print to File</button>
             <button onClick={this.printState}>Print State</button>
+            <button onClick={this.clearLinks}>Clear links</button>
           </div>
-          
+
           <br/>
           <button onClick={this.startLoop1}>Start Loop 1</button>
           <button onClick={this.startLoop2}>Start Loop 2</button>
@@ -578,7 +579,6 @@ class App extends React.Component{
           <label>Crawljob default path: {this.state.cjPath}</label>
         </div>
 
-        <button onClick={this.clearLinks}>Clear links</button>
         <h3>Number of links: {this.state.numLinks}</h3>
         
         <FolderTree 
