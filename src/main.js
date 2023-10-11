@@ -1,9 +1,10 @@
 const { app, BrowserWindow, ipcMain, dialog, globalShortcut, net, shell } = require('electron');
 const fs = require('fs');
 const yaml = require('js-yaml')
-const http = require('http')
+const express = require('express')
 
 const configFilePath = './config.yaml'
+const expressApp = express();
 
 try {
   const config = yaml.load(fs.readFileSync(configFilePath, 'utf8'))
@@ -106,6 +107,17 @@ app.on('activate', () => {
   }
 });
 
+
+
+expressApp.get('/api/data', (req, res) => {
+  const link = req.query.message
+  res.json({ message: 'link received' });
+  console.log("Received JD link:", link)
+});
+
+const server = expressApp.listen(3001, () => {
+  console.log('Express server is running on port 3000');
+});
 
 
 // In this file you can include the rest of your app's specific main process
@@ -246,7 +258,7 @@ function addRequest(addr, port, data) {
   request.end()
 }
 
-ipcMain.on('pydlp', (event, allObjects) => {
+ipcMain.on('pydlp', (event, allObjects, inst) => {
   const exdata = JSON.stringify(allObjects)
   // console.log('pydlp called for:', exdata)
 
@@ -254,26 +266,42 @@ ipcMain.on('pydlp', (event, allObjects) => {
   // Assuming you have loaded the JSON data into the 'jsonData' variable
   const jsonData = JSON.parse(exdata);
 
-  // Calculate the indexes for splitting based on percentages
-  const firstHalfEndIndex = Math.floor(jsonData.length * 0.45);
-  const secondHalfStartIndex = firstHalfEndIndex;
+  if (inst == 0) {
+    // Calculate the indexes for splitting based on percentages
+    const firstHalfEndIndex = Math.floor(jsonData.length * 0.45);
+    const secondHalfStartIndex = firstHalfEndIndex;
 
-  // Create two variables for the halves
-  const firstHalf = jsonData.slice(0, firstHalfEndIndex);
-  const secondHalf = jsonData.slice(secondHalfStartIndex);
+    // Create two variables for the halves
+    const firstHalf = jsonData.slice(0, firstHalfEndIndex);
+    const secondHalf = jsonData.slice(secondHalfStartIndex);
 
-  // Now you have two arrays containing the split data and relationships intact
-  console.log("firstHalf:", firstHalf);
-  console.log("---------------------------------------------")
-  console.log("secondHalf:", secondHalf);
+    // Now you have two arrays containing the split data and relationships intact
+    console.log("firstHalf:", firstHalf);
+    console.log("---------------------------------------------")
+    console.log("secondHalf:", secondHalf);
 
-  if (firstHalf.length != 0) {
-    addRequest(pydlpAddress, pydlpPort, JSON.stringify(firstHalf))
+    if (firstHalf.length != 0) {
+      addRequest(pydlpAddress, pydlpPort, JSON.stringify(firstHalf))
+    }
+    
+    if (secondHalf.length != 0) {
+      addRequest(pydlpAddress, pydlp2Port, JSON.stringify(secondHalf))
+    }
+  } else if (inst == 1) {
+    console.log("Pydlp1")
+    if (JSON.parse(exdata).length != 0) {
+      addRequest(pydlpAddress, pydlpPort, exdata)
+    } else {
+      console.log("Empty request")
+    }
+  } else if (inst == 2) {
+    if (JSON.parse(exdata).length != 0) {
+      addRequest(pydlpAddress, pydlp2Port, exdata)
+    } else {
+      console.log("Empty request")
+    }
   }
-  
-  if (secondHalf.length != 0) {
-    addRequest(pydlpAddress, pydlp2Port, JSON.stringify(secondHalf))
-  }
+
 })
 
 function startRequest(addr, port) {
@@ -295,9 +323,15 @@ function startRequest(addr, port) {
   request.end();
 }
 
-ipcMain.on('startLoop', (event) => {
-  startRequest(pydlpAddress, pydlpPort)
-  startRequest(pydlpAddress, pydlp2Port)
+ipcMain.on('startLoop', (event, inst) => {
+  console.log('Start loop with inst', inst)
+  if (inst == 0 || inst == 1) {
+    startRequest(pydlpAddress, pydlpPort)
+  }
+
+  if (inst == 0 || inst == 2) {
+    startRequest(pydlpAddress, pydlp2Port)
+  }
 })
 
 function stopRequest(addr, port) {
@@ -319,9 +353,14 @@ function stopRequest(addr, port) {
   request.end();
 }
 
-ipcMain.on('stopLoop', (event) => {
-  stopRequest(pydlpAddress, pydlpPort)
-  stopRequest(pydlpAddress, pydlp2Port)
+ipcMain.on('stopLoop', (event, inst) => {
+  console.log("Stop loop wit inst", inst)
+  if (inst == 1) {
+    stopRequest(pydlpAddress, pydlpPort)
+  } else if (inst == 2) {
+    stopRequest(pydlpAddress, pydlp2Port)
+  }
+  
 })
 
 function directoryValid(dir) {
