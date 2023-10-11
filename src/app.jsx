@@ -556,6 +556,21 @@ class App extends React.Component{
   render() {
     return(
       <div>
+        <div className='menuBar' >
+          <div className='debugButtons'>
+            {/* <button onClick={this.printFolders}>Print Folders</button> */}
+            <button onClick={this.printFile}>Print to File</button>
+            <button onClick={this.printState}>Print State</button>
+          </div>
+          
+          <br/>
+          <button onClick={this.startLoop1}>Start Loop 1</button>
+          <button onClick={this.startLoop2}>Start Loop 2</button>
+          <br/>
+          <button onClick={this.stopLoop1}>Stop Loop 1</button>
+          <button onClick={this.stopLoop2}>Stop Loop 2</button>
+        </div>
+
         <textarea value={this.state.textAreaText} />
         <div>
           <label>Top level directory: {this.state.topDir}</label>
@@ -565,19 +580,7 @@ class App extends React.Component{
 
         <button onClick={this.clearLinks}>Clear links</button>
         <h3>Number of links: {this.state.numLinks}</h3>
-        <div className='debugButtons'>
-          {/* <button onClick={this.printFolders}>Print Folders</button> */}
-          <button onClick={this.printFile}>Print to File</button>
-          <button onClick={this.printState}>Print State</button>
-        </div>
         
-        <br/>
-        <button onClick={this.startLoop1}>Start Loop 1</button>
-        <button onClick={this.startLoop2}>Start Loop 2</button>
-        <br/>
-        <button onClick={this.stopLoop1}>Stop Loop 1</button>
-        <button onClick={this.stopLoop2}>Stop Loop 2</button>
-
         <FolderTree 
           name = {this.state.directories.name}
           path = {this.state.directories.path}
