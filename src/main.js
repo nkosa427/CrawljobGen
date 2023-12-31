@@ -174,6 +174,8 @@ ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
 
   console.log("outtext:", outText)
 
+  const defaultPath = `${cjPath}\\${fileName}`;
+
   if (outText === "") {
     dialog.showMessageBox({
       type: 'info',
@@ -184,7 +186,8 @@ ipcMain.on('generateCrawljob', (event, allLinks, cjPath, slashType) => {
   } else {
     dialog.showSaveDialog({
       title: 'Select File Location',
-      defaultPath: (cjPath + slashType + fileName),
+      // defaultPath: (cjPath + slashType + fileName),
+      defaultPath: (defaultPath),
       buttonLabel: 'Save',
       filters: [{
         name: 'crawljob file',

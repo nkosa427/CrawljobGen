@@ -32,6 +32,7 @@ class App extends React.Component{
     this.startLoop2 = this.startLoop2.bind(this);
     this.stopLoop1 = this.stopLoop1.bind(this);
     this.stopLoop2 = this.stopLoop2.bind(this);
+    this.pydlpAll = this.pydlpAll.bind(this);
     // this.removeLink = this.removeLink.bind(this);
     // this.addBasePath = this.addBasePath.bind(this);
     // this.removeBasePath = this.removeBasePath.bind(this);
@@ -60,7 +61,9 @@ class App extends React.Component{
       numLinks: 0,
       basePath: '',
       topDir: '',
-      cjPath: '',
+      cjPath1: '',
+      cjPath2: '',
+      cjPath3: '',
       directories: {
         name: "",
         path: "",
@@ -79,7 +82,9 @@ class App extends React.Component{
     if (dir !== null) {
       this.setState({
         topDir: dir.topDir,
-        cjPath: dir.cjPath,
+        cjPath1: dir.cjPath1,
+        cjPath2: dir.cjPath2,
+        cjPath3: dir.cjPath3,
         slashType: slashType,
         directories: {
           name: dir.topDir,
@@ -120,7 +125,7 @@ class App extends React.Component{
 
     console.log("links:", allLinks)
 
-    ipcRenderer.send('generateCrawljob', allLinks, this.state.cjPath, this.state.slashType)
+    ipcRenderer.send('generateCrawljob', allLinks, this.state.cjPath1, this.state.slashType)
     // ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
   }
 
@@ -250,6 +255,10 @@ class App extends React.Component{
   stopLoop2() {
     console.log("Stop Loop clicked with inst 2")
     ipcRenderer.send('stopLoop', 2)
+  }
+
+  pydlpAll() {
+    this.sendPyDlp(this.state.directories.path, 0)
   }
 
   sortDirectories(a, b) {
@@ -557,6 +566,7 @@ class App extends React.Component{
     return(
       <div>
         <div className='menuBar' >
+          <h3>Number of links: {this.state.numLinks}</h3>
           <div className='debugButtons'>
             {/* <button onClick={this.printFolders}>Print Folders</button> */}
             <button onClick={this.printFile}>Print to File</button>
@@ -564,22 +574,25 @@ class App extends React.Component{
             <button onClick={this.clearLinks}>Clear links</button>
           </div>
 
+
           <br/>
           <button onClick={this.startLoop1}>Start Loop 1</button>
           <button onClick={this.startLoop2}>Start Loop 2</button>
           <br/>
           <button onClick={this.stopLoop1}>Stop Loop 1</button>
           <button onClick={this.stopLoop2}>Stop Loop 2</button>
+          <br/>
+          <button onClick={this.pydlpAll}>PyDlp All</button>
         </div>
 
         <textarea value={this.state.textAreaText} />
         <div>
           <label>Top level directory: {this.state.topDir}</label>
           <br />
-          <label>Crawljob default path: {this.state.cjPath}</label>
+          <label>Crawljob default path: {this.state.cjPath1}</label>
         </div>
 
-        <h3>Number of links: {this.state.numLinks}</h3>
+        
         
         <FolderTree 
           name = {this.state.directories.name}
