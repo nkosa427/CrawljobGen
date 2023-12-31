@@ -152,7 +152,7 @@ const FolderTree = forwardRef((props, ref) => {
           {props.name} 
           {addLinkBtn}
           {isHovering && <button onClick={() => setShowAddFolder(true)}>Add Directory</button>}
-          {/* {isHovering && <button onClick={() => printDirLinks()}>Print</button>} */}
+          {isHovering && <button onClick={() => printDirLinks()}>Print</button>}
           {isHovering && <button onClick={() => pressOpenDir()}>Open</button>}
           {isHovering && <button onClick={() => pressPyDlp(1)}>PyDlp1</button>}
           {isHovering && <button onClick={() => pressPyDlp(2)}>PyDlp2</button>}

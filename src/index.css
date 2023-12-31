@@ -36,3 +36,13 @@ button {
   padding: 1%;
   /* margin: 1%; */
 }
+
+.menuBar {
+  position: fixed;
+  top: 0;
+  right: 0;
+  width: 20%;
+  background-color: #333; /* Set your desired background color */
+  color: white; /* Set your desired text color */
+  padding: 10px;  
+}
