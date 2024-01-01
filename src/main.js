@@ -12,6 +12,7 @@ try {
   global.pydlpPort = config.pydlpPort
   global.pydlp2Port = config.pydlp2Port
   global.pydlpAddress = config.pydlpAddress
+  global.topDir = config.topDir
   global.cjPath = config.cjPath
   global.cjPath1 = config.cjPath1
   global.cjPath2 = config.cjPath2
@@ -157,26 +158,61 @@ function removeTrailingSlash(obj) {
   return obj
 }
 
+function convertWindowsToLinuxPath(array) {
+  return array.map(obj => {
+    if (obj.hasOwnProperty('path')) {
+      obj.path = obj.path.replace(/\\/g, "/");
+    }
+    return obj;
+  });
+}
+
+function replacePrefixInPaths(expandedArray, prefixToReplace, replacementString) {
+  return expandedArray.map(obj => {
+    if (obj.hasOwnProperty('path') && obj.path.startsWith(prefixToReplace)) {
+      obj.path = obj.path.replace(new RegExp(`^${prefixToReplace.replace(/\//g, '\\/')}`), replacementString); // Replace the prefix
+    }
+    return obj;
+  });
+}
+
 ipcMain.on('generateCrawljob', (event, allLinks, slashType) => {
     console.log('allLinks:', allLinks)
 
-    createCrawljobFile(cjPath, allLinks)
-    const expandedArray = separateLinks(allLinks)
-    console.log('expandedArray:', expandedArray)
+    let choice = dialog.showMessageBoxSync(
+      {
+        type: 'question',
+        defaultId: 1,
+        noLink: true,
+        buttons: ['Yes', 'No'],
+        title: 'Print files?',
+        message: 'Are you sure you want to print the CJG files?'
+      }
+    );
 
-    let [resultArray1, resultArray2, resultArray3] = splitArrayIntoThree(expandedArray);
+    console.log("Choice:", choice)
+    if (choice == 0) {
+      createCrawljobFile(cjPath, allLinks)
 
-    if (resultArray1.length > 0) {
-      createCrawljobFile(cjPath1, resultArray1)
-    }
+      linuxCompatibleLinks = convertWindowsToLinuxPath(allLinks)
+      modifiedPrefixLinks = replacePrefixInPaths(linuxCompatibleLinks, topDir, '/output/')
+      const expandedArray = separateLinks(linuxCompatibleLinks)
+      console.log('expandedArray:', expandedArray)
 
-    if (resultArray2.length > 0) {
-      createCrawljobFile(cjPath2, resultArray2)
-    }
+      let [resultArray1, resultArray2, resultArray3] = splitArrayIntoThree(expandedArray);
 
-    if (resultArray3.length > 0) {
-      createCrawljobFile(cjPath3, resultArray3)
-    }
+      if (resultArray1.length > 0) {
+        createCrawljobFile(cjPath1, resultArray1)
+      }
+
+      if (resultArray2.length > 0) {
+        createCrawljobFile(cjPath2, resultArray2)
+      }
+
+      if (resultArray3.length > 0) {
+        createCrawljobFile(cjPath3, resultArray3)
+      }
+  }
 })
 
 function createCrawljobFile(instance, allLinks) {
