@@ -202,23 +202,23 @@ ipcMain.on('generateCrawljob', (event, allLinks, slashType) => {
       let [resultArray1, resultArray2, resultArray3] = splitArrayIntoThree(expandedArray);
 
       if (resultArray1.length > 0) {
-        createCrawljobFile(cjPath1, resultArray1)
+        createCrawljobFile(cjPath1, resultArray1, "JD2")
       }
 
       if (resultArray2.length > 0) {
-        createCrawljobFile(cjPath2, resultArray2)
+        createCrawljobFile(cjPath2, resultArray2, "JD3")
       }
 
       if (resultArray3.length > 0) {
-        createCrawljobFile(cjPath3, resultArray3)
+        createCrawljobFile(cjPath3, resultArray3, "JD4")
       }
   }
 })
 
-function createCrawljobFile(instance, allLinks) {
+function createCrawljobFile(instance, allLinks, fileSuffix) {
   let dt = new Date();
   let month = dt.getMonth()+1
-  let fileName = month + "-" + dt.getDate() + "-" + dt.getFullYear() + "_" + dt.getHours() + "-" + dt.getMinutes() + "-" + dt.getSeconds()
+  let fileName = month + "-" + dt.getDate() + "-" + dt.getFullYear() + "_" + dt.getHours() + "-" + dt.getMinutes() + "-" + dt.getSeconds() + "_" + fileSuffix
   console.log("path:", fileName)
 
   const defaultPath = `${instance}\\${fileName}`;
