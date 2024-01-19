@@ -61,9 +61,7 @@ class App extends React.Component{
       numLinks: 0,
       basePath: '',
       topDir: '',
-      cjPath1: '',
-      cjPath2: '',
-      cjPath3: '',
+      cjPath: '',
       directories: {
         name: "",
         path: "",
@@ -82,9 +80,7 @@ class App extends React.Component{
     if (dir !== null) {
       this.setState({
         topDir: dir.topDir,
-        cjPath1: dir.cjPath1,
-        cjPath2: dir.cjPath2,
-        cjPath3: dir.cjPath3,
+        cjPath: dir.cjPath,
         slashType: slashType,
         directories: {
           name: dir.topDir,
@@ -125,7 +121,7 @@ class App extends React.Component{
 
     console.log("links:", allLinks)
 
-    ipcRenderer.send('generateCrawljob', allLinks, this.state.cjPath1, this.state.slashType)
+    ipcRenderer.send('generateCrawljob', allLinks, this.state.cjPath, this.state.slashType)
     // ipcRenderer.send('printFile', this.state.folders, this.state.convertSlashes, this.state.prefix);
   }
 
@@ -589,7 +585,7 @@ class App extends React.Component{
         <div>
           <label>Top level directory: {this.state.topDir}</label>
           <br />
-          <label>Crawljob default path: {this.state.cjPath1}</label>
+          <label>Crawljob default path: {this.state.cjPath}</label>
         </div>
 
         
